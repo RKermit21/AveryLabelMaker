@@ -135,7 +135,7 @@ window.addEventListener("DOMContentLoaded", () => {
       label.style.background = `linear-gradient(to bottom, #0000FF 0%, #0000FF 25%, ${selectedColorHex} 25%, ${selectedColorHex} 50%, white 50%, white 100%)`;
     }
 
-    if (["red", "green", "orange", "blue"].includes(color)) {
+    if (["red", "green", "orange", "blue", "yellow"].includes(color)) {
       titleDiv.style.color = "white";
     } else {
       titleDiv.style.color = "black";
@@ -285,22 +285,27 @@ safeAddListener(printPdfBtn, "click", () => {
 
   const style = document.createElement("style");
   style.textContent = `
+    @page {
+      size: letter;   /* force US Letter page */
+      margin: 0;      /* remove browser default margins */
+    }
     body {
-  font-family: Arial, sans-serif;
-  margin: 0.6in 0.5in 0.4in 0.5in;
-  display: grid;
-  grid-template-columns: repeat(4, 1.75in);
-  grid-auto-rows: 0.667in;
-  column-gap: ${horizontalGap}in;
-  row-gap: ${verticalGap}in;
-  justify-content: center; /* center horizontally */
-}
+      font-family: Arial, sans-serif;
+      margin: 0.6in 0.5in 0.4in 0.5in; /* calibrated margins */
+      display: grid;
+      grid-template-columns: repeat(4, 1.75in);
+      grid-auto-rows: 0.667in;
+      column-gap: ${horizontalGap}in;
+      row-gap: ${verticalGap}in;
+      justify-content: center;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
     .label {
       width: 1.75in;
       height: 0.667in;
       position: relative;
       box-sizing: border-box;
-        /* border: 1px solid #ccc;  <-- remove this */
       border-radius: 6px 6px 0 0;
       overflow: hidden;
       display: flex;
@@ -309,7 +314,7 @@ safeAddListener(printPdfBtn, "click", () => {
       align-items: center;
       padding: 2px 0;
     }
-    .label-title { font-size: 8px; margin-top 2px; font-weight: bold; text-align: center; width: 85%; z-index: 2; }
+    .label-title { font-size: 8px; margin-top: 2px; font-weight: bold; text-align: center; width: 85%; z-index: 2; }
     .label-barcode {
       font-family: "CCode39", monospace;
       font-size: 6px;
