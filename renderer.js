@@ -314,7 +314,7 @@ safeAddListener(printPdfBtn, "click", () => {
       align-items: center;
       padding: 2px 0;
     }
-    .label-title { font-size: 8px; margin-top: 2px; font-weight: bold; text-align: center; width: 85%; z-index: 2; }
+    .label-title { font-size: 8px; margin-top: 3px; font-weight: bold; text-align: center; width: 85%; z-index: 2; }
     .label-barcode {
       font-family: "CCode39", monospace;
       font-size: 6px;
@@ -324,7 +324,7 @@ safeAddListener(printPdfBtn, "click", () => {
       border-radius: 1px;
       background: white;
       z-index: 2;
-      width: 85%;
+      width: 75%;
       margin: 0px auto 0;
     }
     .label-subtitle { font-size: 8px; text-align: center; width: 100%; z-index: 2; margin-top: 0px; }
