@@ -27,6 +27,10 @@ window.addEventListener("DOMContentLoaded", () => {
   let batchMode = false;
   let selectedLabels = [];
 
+  // --- Calibration offsets (in inches) ---
+  let calibrationX = 0;
+  let calibrationY = 0;
+
   // --- Generate label grid ---
   function createLabelGrid(rows = 15, cols = 4) {
     labelContainer.innerHTML = "";
@@ -206,7 +210,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   safeAddListener(editSelectedBtn, "click", editLabels);
-
   [titleInput, barcodeInput].forEach(input => {
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { e.preventDefault(); editLabels(); }
@@ -252,18 +255,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // --- Export to Excel ---
   safeAddListener(exportBtn, "click", () => {
-    const serials = Array.from(labelContainer.querySelectorAll(".label-subtitle"))
-                         .map(el => el.textContent)
-                         .filter(txt => txt);
-    if (serials.length === 0) { alert("No serials to export!"); return; }
-
     let csvContent = "data:text/csv;charset=utf-8,Title,Serial\n";
     labelContainer.querySelectorAll(".label").forEach(label => {
       const title = label.querySelector(".label-title")?.textContent || "";
       const serial = label.querySelector(".label-subtitle")?.textContent || "";
       if (title || serial) csvContent += `${title},${serial}\n`;
     });
-
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -273,114 +270,161 @@ window.addEventListener("DOMContentLoaded", () => {
     document.body.removeChild(link);
   });
 
-  // --- Print PDF ---
-// --- Print PDF with adjustable gaps ---
-safeAddListener(printPdfBtn, "click", () => {
+  // --- Create Calibration Modal ---
+  const calibrationModal = document.createElement("div");
+  calibrationModal.id = "calibrationModal";
+  calibrationModal.style.display = "none";
+  calibrationModal.innerHTML = `
+    <div class="modal-content">
+      <h4>Calibration (Adjust Margins if Needed)</h4>
+      <label>
+        Left/Right (X, mm):
+        <input type="number" id="modalCalibrationX" value="0" step="0.5">
+      </label>
+      <label>
+        Up/Down (Y, mm):
+        <input type="number" id="modalCalibrationY" value="0" step="0.5">
+      </label>
+      <div style="margin-top:15px;">
+        <button id="modalApplyCalibration">Print</button>
+        <button id="modalResetCalibration">Reset</button>
+        <button id="modalCloseCalibration">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(calibrationModal);
+
+  const modalX = document.getElementById("modalCalibrationX");
+  const modalY = document.getElementById("modalCalibrationY");
+  const modalApply = document.getElementById("modalApplyCalibration");
+  const modalReset = document.getElementById("modalResetCalibration");
+  const modalClose = document.getElementById("modalCloseCalibration");
+
+  // --- Show modal on printPDF click ---
+  printPdfBtn.addEventListener("click", () => {
+    modalX.value = (calibrationX * 25.4).toFixed(1);
+    modalY.value = (calibrationY * 25.4).toFixed(1);
+    calibrationModal.style.display = "flex";
+  });
+
+  // --- Apply calibration from modal ---
+  modalApply.addEventListener("click", () => {
+    calibrationX = parseFloat(modalX.value)/25.4 || 0;
+    calibrationY = parseFloat(modalY.value)/25.4 || 0;
+    calibrationModal.style.display = "none";
+    printPDFWithCalibration();
+  });
+
+  modalReset.addEventListener("click", () => {
+    calibrationX = 0;
+    calibrationY = 0;
+    modalX.value = 0;
+    modalY.value = 0;
+    alert("Calibration reset to 0 mm");
+  });
+
+  modalClose.addEventListener("click", () => calibrationModal.style.display = "none");
+
+  // --- Function to actually print PDF with current calibration ---
+ function printPDFWithCalibration() {
   const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60); // 4x15 max
   const printWindow = window.open("", "_blank");
 
-  // --- Editable gaps (in inches) ---
-  let horizontalGap = 0.28; // horizontal spacing between labels
-  let verticalGap = 0.00;   // vertical spacing between labels
+  // Label layout
+  const cols = 4;
+  const rows = 15;
+  const labelWidthIn = 1.75;
+  const labelHeightIn = 0.667;
+  const horizontalGap = 0.28;
+  const verticalGap = 0.0;
+
+  // Page size (Letter) in inches
+  const pageWidth = 8.5;
+  const pageHeight = 11;
+
+  // Calculate total grid size
+  const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
+  const gridHeight = rows * labelHeightIn + (rows - 1) * verticalGap;
+
+  // Center offsets
+  const offsetX = (pageWidth - gridWidth)/2 + calibrationX;
+  const offsetY = (pageHeight - gridHeight)/2 + calibrationY;
 
   const style = document.createElement("style");
   style.textContent = `
-    @page {
-      size: letter;   /* force US Letter page */
-      margin: 0;      /* remove browser default margins */
-    }
+    @page { size: letter; margin: 0; }
     body {
       font-family: Arial, sans-serif;
-      margin: 0.6in 0.5in 0.4in 0.5in; /* calibrated margins */
       display: grid;
-      grid-template-columns: repeat(4, 1.75in);
-      grid-auto-rows: 0.667in;
+      grid-template-columns: repeat(${cols}, ${labelWidthIn}in);
+      grid-auto-rows: ${labelHeightIn}in;
       column-gap: ${horizontalGap}in;
       row-gap: ${verticalGap}in;
-      justify-content: center;
+      justify-content: flex-start;
+      margin-left: ${offsetX}in;
+      margin-top: ${offsetY}in;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
     .label {
-      width: 1.75in;
-      height: 0.667in;
-      position: relative;
+      border-radius: 6px; /* rounded top corners */
       box-sizing: border-box;
-      border-radius: 6px 6px 0 0;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
-      padding: 2px 0;
+      padding: 2px;
     }
-    .label-title { font-size: 8px; margin-top: 3px; font-weight: bold; text-align: center; width: 85%; z-index: 2; }
-    .label-barcode {
-      font-family: "CCode39", monospace;
-      font-size: 6px;
-      text-align: center;
-      display: block;
-      padding: 0px 2px;
-      border-radius: 1px;
-      background: white;
-      z-index: 2;
-      width: 75%;
-      margin: 0px auto 0;
+    .label-title {
+      font-weight: bold;
+      font-size: 12px;
+      margin-bottom: 2px;
     }
-    .label-subtitle { font-size: 8px; text-align: center; width: 100%; z-index: 2; margin-top: 0px; }
-    .bg-div { position: absolute; left: 0; width: 100%; z-index: 0; border-radius: 6px 6px 0 0; }
+    .label-barcode span {
+      font-family: 'CCode39';
+      font-size: 15px;
+      background-color: white;
+      padding: 1px 2px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .label-subtitle {
+      font-size: 10px;
+      margin-top: 1px;
+    }
   `;
   printWindow.document.head.appendChild(style);
 
   allLabels.forEach(label => {
     const clone = label.cloneNode(true);
-    clone.style.transform = "none";
-    clone.style.boxShadow = "none";
 
-    const color = clone.dataset.color || "default";
+    // Copy computed styles
+    const labelStyle = window.getComputedStyle(label);
+    clone.style.background = labelStyle.background;
+    clone.style.borderRadius = labelStyle.borderRadius;
 
-    if (color === "skyblue") {
-      const bgDiv = document.createElement("div");
-      bgDiv.className = "bg-div";
-      bgDiv.style.top = "0";
-      bgDiv.style.height = "50%";
-      bgDiv.style.backgroundColor = "#87CEEB";
-      clone.insertBefore(bgDiv, clone.firstChild);
-      clone.querySelector(".label-title").style.color = "black";
-    } else if (["red", "yellow", "green", "orange"].includes(color)) {
-      const topDiv = document.createElement("div");
-      topDiv.className = "bg-div";
-      topDiv.style.top = "0";
-      topDiv.style.height = "25%";
-      topDiv.style.backgroundColor = "#0000FF";
-      clone.insertBefore(topDiv, clone.firstChild);
+    const title = clone.querySelector(".label-title");
+    const titleStyle = window.getComputedStyle(label.querySelector(".label-title"));
+    title.style.color = titleStyle.color;
+    title.style.fontSize = titleStyle.fontSize;
+    title.style.fontWeight = titleStyle.fontWeight;
 
-      const colorDiv = document.createElement("div");
-      colorDiv.className = "bg-div";
-      colorDiv.style.top = "25%";
-      colorDiv.style.height = "25%";
-      colorDiv.style.backgroundColor = {
-        red: "#FF6347",
-        yellow: "#FFD700",
-        green: "#32CD32",
-        orange: "#FFA500"
-      }[color];
-      clone.appendChild(colorDiv);
+    const barcode = clone.querySelector(".label-barcode");
+    const barcodeStyle = window.getComputedStyle(label.querySelector(".label-barcode"));
+    barcode.style.fontFamily = barcodeStyle.fontFamily;
 
-      clone.querySelector(".label-title").style.color = "white";
-    } else {
-      clone.style.backgroundColor = "white";
-      clone.querySelector(".label-title").style.color = "black";
-    }
+    const subtitle = clone.querySelector(".label-subtitle");
+    const subtitleStyle = window.getComputedStyle(label.querySelector(".label-subtitle"));
+    subtitle.style.color = subtitleStyle.color;
+    subtitle.style.fontSize = subtitleStyle.fontSize;
 
     printWindow.document.body.appendChild(clone);
   });
 
   printWindow.onafterprint = () => printWindow.close();
-
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
-});
+}
 
 });
