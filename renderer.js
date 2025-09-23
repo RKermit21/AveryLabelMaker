@@ -31,8 +31,6 @@ window.addEventListener("DOMContentLoaded", () => {
   let calibrationX = 0;
   let calibrationY = 0;
 
-  // --- Default baseline shift (1/8inch down) ---
-  const baselineYOffset = .5 / 25.4; // 6.35 mm → inches
 
   // --- Generate label grid ---
   function createLabelGrid(rows = 15, cols = 4) {
@@ -347,8 +345,8 @@ function printPDFWithCalibration() {
   const pageHeight = 11;
 
   // --- Default built-in baseline shifts (¼ inch right + ¼ inch down) ---
-  const baselineXOffset = 1.00 / 25.4; // 6.35 mm → inches right
-  const baselineYOffset = -1.00 / 25.4; // 6.35 mm → inches down
+  const baselineXOffset = .50 / 25.4; // 6.35 mm → inches right
+  const baselineYOffset = -.50 / 25.4; // 6.35 mm → inches down
 
   // Calculate total grid size
   const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
