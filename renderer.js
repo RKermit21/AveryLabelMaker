@@ -386,7 +386,7 @@ function printPDFWithCalibration() {
       font-weight: bold;
       font-size: 12px;
       margin-bottom: 0px;
-      margin-top: 0px;
+      margin-top: 2px;
     }
     .label-barcode span {
       font-family: 'CCode39';
@@ -437,3 +437,4 @@ function printPDFWithCalibration() {
 }
 
 });
+
