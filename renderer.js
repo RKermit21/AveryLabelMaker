@@ -137,7 +137,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (color === "skyblue") {
       label.style.background = `linear-gradient(to bottom, ${selectedColorHex} 0%, ${selectedColorHex} 50%, white 50%, white 100%)`;
     } else {
-      label.style.background = `linear-gradient(to bottom, #0000FF 0%, #0000FF 25%, ${selectedColorHex} 25%, ${selectedColorHex} 50%, white 50%, white 100%)`;
+     label.style.background = `linear-gradient(to bottom, ${selectedColorHex} 0%, ${selectedColorHex} 50%, white 50%, white 100%)`;
+
     }
 
     if (["red", "green", "orange", "blue", "yellow"].includes(color)) {
@@ -337,7 +338,7 @@ function printPDFWithCalibration() {
   const rows = 15;
   const labelWidthIn = 1.75;
   const labelHeightIn = 0.667;
-  const horizontalGap = 0.28;
+  const horizontalGap = 0.30;
   const verticalGap = 0.0;
 
   // Page size (Letter) in inches
@@ -346,7 +347,7 @@ function printPDFWithCalibration() {
 
   // --- Default built-in baseline shifts (¼ inch right + ¼ inch down) ---
   const baselineXOffset = .50 / 25.4; // 6.35 mm → inches right
-  const baselineYOffset = -.50 / 25.4; // 6.35 mm → inches down
+  const baselineYOffset = -.28 / 25.4; // 6.35 mm → inches down
 
   // Calculate total grid size
   const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
