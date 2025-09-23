@@ -281,11 +281,11 @@ window.addEventListener("DOMContentLoaded", () => {
     <div class="modal-content">
       <h4>Calibration (Adjust Margins if Needed)</h4>
       <label>
-        Left/Right (X, mm):
+        Left(-)/Right(+) (X, mm):
         <input type="number" id="modalCalibrationX" value="0" step="0.5">
       </label>
       <label>
-        Up/Down (Y, mm):
+        Up(-)/Down(+) (Y, mm):
         <input type="number" id="modalCalibrationY" value="0" step="0.5">
       </label>
       <div style="margin-top:15px;">
@@ -370,7 +370,7 @@ window.addEventListener("DOMContentLoaded", () => {
         print-color-adjust: exact;
       }
       .label {
-        border-radius: 9px; /* rounded top corners */
+        border-radius: 11px; /* rounded top corners */
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
