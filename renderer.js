@@ -31,6 +31,9 @@ window.addEventListener("DOMContentLoaded", () => {
   let calibrationX = 0;
   let calibrationY = 0;
 
+  // --- Default baseline shift (1/8inch down) ---
+  const baselineYOffset = 2.175 / 25.4; // 6.35 mm → inches
+
   // --- Generate label grid ---
   function createLabelGrid(rows = 15, cols = 4) {
     labelContainer.innerHTML = "";
@@ -326,105 +329,107 @@ window.addEventListener("DOMContentLoaded", () => {
   modalClose.addEventListener("click", () => calibrationModal.style.display = "none");
 
   // --- Function to actually print PDF with current calibration ---
- function printPDFWithCalibration() {
-  const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60); // 4x15 max
-  const printWindow = window.open("", "_blank");
+  function printPDFWithCalibration() {
+    const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60); // 4x15 max
+    const printWindow = window.open("", "_blank");
 
-  // Label layout
-  const cols = 4;
-  const rows = 15;
-  const labelWidthIn = 1.75;
-  const labelHeightIn = 0.667;
-  const horizontalGap = 0.28;
-  const verticalGap = 0.0;
+    // Label layout
+    const cols = 4;
+    const rows = 15;
+    const labelWidthIn = 1.75;
+    const labelHeightIn = 0.667;
+    const horizontalGap = 0.28;
+    const verticalGap = 0.0;
 
-  // Page size (Letter) in inches
-  const pageWidth = 8.5;
-  const pageHeight = 11;
+    // Page size (Letter) in inches
+    const pageWidth = 8.5;
+    const pageHeight = 11;
 
-  // Calculate total grid size
-  const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
-  const gridHeight = rows * labelHeightIn + (rows - 1) * verticalGap;
+    // Calculate total grid size
+    const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
+    const gridHeight = rows * labelHeightIn + (rows - 1) * verticalGap;
 
-  // Center offsets
-  const offsetX = (pageWidth - gridWidth)/2 + calibrationX;
-  const offsetY = (pageHeight - gridHeight)/2 + calibrationY;
+    // Center offsets
+    const offsetX = (pageWidth - gridWidth)/2 + calibrationX;
+    const offsetY = (pageHeight - gridHeight)/2 + baselineYOffset + calibrationY;
 
-  const style = document.createElement("style");
-  style.textContent = `
-    @page { size: letter; margin: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      display: grid;
-      grid-template-columns: repeat(${cols}, ${labelWidthIn}in);
-      grid-auto-rows: ${labelHeightIn}in;
-      column-gap: ${horizontalGap}in;
-      row-gap: ${verticalGap}in;
-      justify-content: flex-start;
-      margin-left: ${offsetX}in;
-      margin-top: ${offsetY}in;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .label {
-      border-radius: 6px; /* rounded top corners */
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 2px;
-    }
-    .label-title {
-      font-weight: bold;
-      font-size: 12px;
-      margin-bottom: 2px;
-    }
-    .label-barcode span {
-      font-family: 'CCode39';
-      font-size: 15px;
-      background-color: white;
-      padding: 1px 2px;
-      border-radius: 2px;
-      display: inline-block;
-    }
-    .label-subtitle {
-      font-size: 10px;
-      margin-top: 1px;
-    }
-  `;
-  printWindow.document.head.appendChild(style);
+    const style = document.createElement("style");
+    style.textContent = `
+      @page { size: letter; margin: 0; }
+      body {
+        font-family: Arial, sans-serif;
+        display: grid;
+        grid-template-columns: repeat(${cols}, ${labelWidthIn}in);
+        grid-auto-rows: ${labelHeightIn}in;
+        column-gap: ${horizontalGap}in;
+        row-gap: ${verticalGap}in;
+        justify-content: flex-start;
+        margin-left: ${offsetX}in;
+        margin-top: ${offsetY}in;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .label {
+        border-radius: 9px; /* rounded top corners */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2px;
+      }
+      .label-title {
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 0px;
+	margin-top: 0px;
+      }
+      .label-barcode span {
+        font-family: 'CCode39';
+        font-size: 14px;
+        background-color: white;
+        padding: 1px 1px;
+        border-radius: 2px;
+        transform: scaleY(.8);
+        display: inline-block;
+      }
+      .label-subtitle {
+        font-size: 10px;
+        margin-top: 0px;
+      }
+    `;
+    printWindow.document.head.appendChild(style);
 
-  allLabels.forEach(label => {
-    const clone = label.cloneNode(true);
+    allLabels.forEach(label => {
+      const clone = label.cloneNode(true);
 
-    // Copy computed styles
-    const labelStyle = window.getComputedStyle(label);
-    clone.style.background = labelStyle.background;
-    clone.style.borderRadius = labelStyle.borderRadius;
+      // Copy computed styles
+      const labelStyle = window.getComputedStyle(label);
+      clone.style.background = labelStyle.background;
+      clone.style.borderRadius = labelStyle.borderRadius;
 
-    const title = clone.querySelector(".label-title");
-    const titleStyle = window.getComputedStyle(label.querySelector(".label-title"));
-    title.style.color = titleStyle.color;
-    title.style.fontSize = titleStyle.fontSize;
-    title.style.fontWeight = titleStyle.fontWeight;
+      const title = clone.querySelector(".label-title");
+      const titleStyle = window.getComputedStyle(label.querySelector(".label-title"));
+      title.style.color = titleStyle.color;
+      title.style.fontSize = titleStyle.fontSize;
+      title.style.fontWeight = titleStyle.fontWeight;
 
-    const barcode = clone.querySelector(".label-barcode");
-    const barcodeStyle = window.getComputedStyle(label.querySelector(".label-barcode"));
-    barcode.style.fontFamily = barcodeStyle.fontFamily;
+      const barcode = clone.querySelector(".label-barcode");
+      const barcodeStyle = window.getComputedStyle(label.querySelector(".label-barcode"));
+      barcode.style.fontFamily = barcodeStyle.fontFamily;
 
-    const subtitle = clone.querySelector(".label-subtitle");
-    const subtitleStyle = window.getComputedStyle(label.querySelector(".label-subtitle"));
-    subtitle.style.color = subtitleStyle.color;
-    subtitle.style.fontSize = subtitleStyle.fontSize;
+      const subtitle = clone.querySelector(".label-subtitle");
+      const subtitleStyle = window.getComputedStyle(label.querySelector(".label-subtitle"));
+      subtitle.style.color = subtitleStyle.color;
+      subtitle.style.fontSize = subtitleStyle.fontSize;
 
-    printWindow.document.body.appendChild(clone);
-  });
+      printWindow.document.body.appendChild(clone);
+    });
 
-  printWindow.onafterprint = () => printWindow.close();
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-}
+    printWindow.onafterprint = () => printWindow.close();
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  }
 
 });
