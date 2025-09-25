@@ -137,8 +137,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (color === "skyblue") {
       label.style.background = `linear-gradient(to bottom, ${selectedColorHex} 0%, ${selectedColorHex} 50%, white 50%, white 100%)`;
     } else {
-     label.style.background = `linear-gradient(to bottom, ${selectedColorHex} 0%, ${selectedColorHex} 50%, white 50%, white 100%)`;
-
+      label.style.background = `linear-gradient(to bottom, #0000FF 0%, #0000FF 25%, ${selectedColorHex} 25%, ${selectedColorHex} 50%, white 50%, white 100%)`;
     }
 
     if (["red", "green", "orange", "blue", "yellow"].includes(color)) {
@@ -147,7 +146,6 @@ window.addEventListener("DOMContentLoaded", () => {
       titleDiv.style.color = "black";
     }
   }
-
   // --- Color dropdown ---
   colorSelected.addEventListener("click", () => colorSelector.classList.toggle("active"));
   colorOptions.forEach(option => {
@@ -437,4 +435,5 @@ function printPDFWithCalibration() {
 }
 
 });
+
 
