@@ -345,7 +345,7 @@ function printPDFWithCalibration() {
 
   // --- Default built-in baseline shifts (¼ inch right + ¼ inch down) ---
   const baselineXOffset = .50 / 25.4; // 6.35 mm → inches right
-  const baselineYOffset = -.28 / 25.4; // 6.35 mm → inches down
+  const baselineYOffset = .28 / 25.4; // 6.35 mm → inches down
 
   // Calculate total grid size
   const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
@@ -435,5 +435,6 @@ function printPDFWithCalibration() {
 }
 
 });
+
 
 
