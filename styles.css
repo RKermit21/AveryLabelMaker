@@ -180,7 +180,7 @@ header h1 {
   pointer-events: none;
 }
 
-.label.skyblue::before { background-color: skyblue; }
+.label.skyblue::before { background-color: blue; }
 .label.red::before     { background-color: red; }
 .label.yellow::before  { background-color: yellow; }
 .label.green::before   { background-color: lightgreen; }
@@ -228,7 +228,7 @@ header h1 {
   cursor: pointer;
 }
 
-.color-option[data-color="skyblue"]:hover { background-color: #87CEEB; color: #000; }
+.color-option[data-color="skyblue"]:hover { background-color: #045BDC; color: #fff; }
 .color-option[data-color="red"]:hover { background-color: #FF6347; color: #fff; }
 .color-option[data-color="yellow"]:hover { background-color: #FFD700; color: #000; }
 .color-option[data-color="green"]:hover { background-color: #32CD32; color: #fff; }
@@ -333,4 +333,5 @@ header h1 {
   background-color: #ff0000;
   color: #fff;
 }
+
 
