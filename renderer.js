@@ -134,7 +134,7 @@ window.addEventListener("DOMContentLoaded", () => {
       default: selectedColorHex = "white";
     }
 
-    if (color === "skyblue") {
+    if (color === "blue") {
       label.style.background = `linear-gradient(to bottom, ${selectedColorHex} 0%, ${selectedColorHex} 50%, white 50%, white 100%)`;
     } else {
       label.style.background = `linear-gradient(to bottom, #0000FF 0%, #0000FF 25%, ${selectedColorHex} 25%, ${selectedColorHex} 50%, white 50%, white 100%)`;
@@ -435,6 +435,7 @@ function printPDFWithCalibration() {
 }
 
 });
+
 
 
 
