@@ -126,8 +126,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let selectedColorHex;
     switch (color) {
-      case "skyblue": selectedColorHex = "#87CEEB"; break;
-      case "red": selectedColorHex = "#FF6347"; break;
+      case "blue": selectedColorHex = "#045BDC"; break;
+      case "red": selectedColorHex = "#FF1A1A"; break;
       case "yellow": selectedColorHex = "#FFD700"; break;
       case "green": selectedColorHex = "#32CD32"; break;
       case "orange": selectedColorHex = "#FFA500"; break;
@@ -224,7 +224,7 @@ window.addEventListener("DOMContentLoaded", () => {
       label.querySelector(".label-subtitle").textContent = "";
       label.dataset.color = "default";
       label.style.background = "white";
-      label.classList.remove("selected", "skyblue", "red", "yellow", "green", "orange");
+      label.classList.remove("selected", "blue", "red", "yellow", "green", "orange");
       label.querySelector(".label-title").style.color = "black";
     });
     selectedLabels = [];
@@ -245,7 +245,7 @@ window.addEventListener("DOMContentLoaded", () => {
       label.querySelector(".label-subtitle").textContent = "";
       label.dataset.color = "default";
       label.style.background = "white";
-      label.classList.remove("selected", "skyblue", "red", "yellow", "green", "orange");
+      label.classList.remove("selected", "blue", "red", "yellow", "green", "orange");
       label.querySelector(".label-title").style.color = "black";
     });
     selectedLabels = [];
@@ -435,6 +435,7 @@ function printPDFWithCalibration() {
 }
 
 });
+
 
 
 
