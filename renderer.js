@@ -17,6 +17,13 @@ window.addEventListener("DOMContentLoaded", () => {
   const clearAllBtn = document.getElementById("clearAll");
   const printPdfBtn = document.getElementById("printPDF");
 
+  // --- Feedback Button ---
+  const feedbackBtn = document.createElement("button");
+  feedbackBtn.id = "feedbackBtn";
+  feedbackBtn.textContent = "Feedback";
+  printPdfBtn.parentNode.insertBefore(feedbackBtn, printPdfBtn);
+
+  // --- Export Button ---
   const exportBtn = document.createElement("button");
   exportBtn.id = "exportExcel";
   exportBtn.textContent = "Export to Excel";
@@ -30,7 +37,6 @@ window.addEventListener("DOMContentLoaded", () => {
   // --- Calibration offsets (in inches) ---
   let calibrationX = 0;
   let calibrationY = 0;
-
 
   // --- Generate label grid ---
   function createLabelGrid(rows = 15, cols = 4) {
@@ -146,6 +152,7 @@ window.addEventListener("DOMContentLoaded", () => {
       titleDiv.style.color = "black";
     }
   }
+
   // --- Color dropdown ---
   colorSelected.addEventListener("click", () => colorSelector.classList.toggle("active"));
   colorOptions.forEach(option => {
@@ -270,7 +277,7 @@ window.addEventListener("DOMContentLoaded", () => {
     document.body.removeChild(link);
   });
 
-  // --- Create Calibration Modal ---
+  // --- Calibration Modal ---
   const calibrationModal = document.createElement("div");
   calibrationModal.id = "calibrationModal";
   calibrationModal.style.display = "none";
@@ -300,14 +307,12 @@ window.addEventListener("DOMContentLoaded", () => {
   const modalReset = document.getElementById("modalResetCalibration");
   const modalClose = document.getElementById("modalCloseCalibration");
 
-  // --- Show modal on printPDF click ---
   printPdfBtn.addEventListener("click", () => {
     modalX.value = (calibrationX * 25.4).toFixed(1);
     modalY.value = (calibrationY * 25.4).toFixed(1);
     calibrationModal.style.display = "flex";
   });
 
-  // --- Apply calibration from modal ---
   modalApply.addEventListener("click", () => {
     calibrationX = parseFloat(modalX.value)/25.4 || 0;
     calibrationY = parseFloat(modalY.value)/25.4 || 0;
@@ -325,120 +330,134 @@ window.addEventListener("DOMContentLoaded", () => {
 
   modalClose.addEventListener("click", () => calibrationModal.style.display = "none");
 
-  // --- Function to actually print PDF with current calibration ---
-  // --- Function to actually print PDF with current calibration ---
-function printPDFWithCalibration() {
-  const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60); // 4x15 max
-  const printWindow = window.open("", "_blank");
-
-  // Label layout
-  const cols = 4;
-  const rows = 15;
-  const labelWidthIn = 1.75;
-  const labelHeightIn = 0.66;
-  const horizontalGap = 0.30;
-  const verticalGap = 0.0;
-
-  // Page size (Letter) in inches
-  const pageWidth = 8.5;
-  const pageHeight = 11;
-
-  // --- Default built-in baseline shifts (¼ inch right + ¼ inch down) ---
-  const baselineXOffset = .50 / 25.4; // 6.35 mm → inches right
-  const baselineYOffset = .28 / 25.4; // 6.35 mm → inches down
-
-  // Calculate total grid size
-  const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
-  const gridHeight = rows * labelHeightIn + (rows - 1) * verticalGap;
-
-  // Center offsets + baseline + calibration
-  const offsetX = (pageWidth - gridWidth) / 2 + baselineXOffset + calibrationX;
-  const offsetY = (pageHeight - gridHeight) / 2 + baselineYOffset + calibrationY;
-
-  const style = document.createElement("style");
-  style.textContent = `
-    @page { size: letter; margin: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      display: grid;
-      grid-template-columns: repeat(${cols}, ${labelWidthIn}in);
-      grid-auto-rows: ${labelHeightIn}in;
-      column-gap: ${horizontalGap}in;
-      row-gap: ${verticalGap}in;
-      justify-content: flex-start;
-      margin-left: ${offsetX}in;
-      margin-top: ${offsetY}in;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .label {
-      border-radius: 11px; /* rounded top corners */
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 2px;
-    }
-    .label-title {
-      font-weight: bold;
-      font-size: 12px;
-      margin-bottom: 0px;
-      margin-top: 2px;
-    }
-    .label-barcode span {
-      font-family: 'CCode39';
-      font-size: 14px;
-      background-color: white;
-      padding: 1px 1px;
-      border-radius: 2px;
-      transform: scaleY(.8);
-      display: inline-block;
-    }
-    .label-subtitle {
-      font-size: 9px;
-      margin-top: 0px;
-      font-weight: bold;
-    }
+  // --- Feedback Modal ---
+  const feedbackModal = document.createElement("div");
+  feedbackModal.id = "feedbackModal";
+  feedbackModal.style.display = "none";
+  feedbackModal.innerHTML = `
+    <div class="modal-content">
+      <h4>Send Feedback</h4>
+      <p>We'd love your feedback on this label maker!</p>
+      <button class="neon-button" id="feedbackLink">Go to Form</button>
+      <button id="feedbackClose">Close</button>
+    </div>
   `;
-  printWindow.document.head.appendChild(style);
+  document.body.appendChild(feedbackModal);
 
-  allLabels.forEach(label => {
-    const clone = label.cloneNode(true);
+  const feedbackLink = document.getElementById("feedbackLink");
+  const feedbackClose = document.getElementById("feedbackClose");
 
-    // Copy computed styles
-    const labelStyle = window.getComputedStyle(label);
-    clone.style.background = labelStyle.background;
-    clone.style.borderRadius = labelStyle.borderRadius;
-
-    const title = clone.querySelector(".label-title");
-    const titleStyle = window.getComputedStyle(label.querySelector(".label-title"));
-    title.style.color = titleStyle.color;
-    title.style.fontSize = titleStyle.fontSize;
-    title.style.fontWeight = titleStyle.fontWeight;
-
-    const barcode = clone.querySelector(".label-barcode");
-    const barcodeStyle = window.getComputedStyle(label.querySelector(".label-barcode"));
-    barcode.style.fontFamily = barcodeStyle.fontFamily;
-
-    const subtitle = clone.querySelector(".label-subtitle");
-    const subtitleStyle = window.getComputedStyle(label.querySelector(".label-subtitle"));
-    subtitle.style.color = subtitleStyle.color;
-    subtitle.style.fontSize = subtitleStyle.fontSize;
-
-    printWindow.document.body.appendChild(clone);
+  feedbackBtn.addEventListener("click", () => {
+    feedbackModal.style.display = "flex";
   });
 
-  printWindow.onafterprint = () => printWindow.close();
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-}
+  feedbackClose.addEventListener("click", () => {
+    feedbackModal.style.display = "none";
+  });
 
+  feedbackLink.addEventListener("click", () => {
+    window.open("https://forms.office.com", "_blank");
+  });
+
+  // --- Print PDF Function (existing) ---
+  function printPDFWithCalibration() {
+    const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60); 
+    const printWindow = window.open("", "_blank");
+
+    const cols = 4;
+    const rows = 15;
+    const labelWidthIn = 1.75;
+    const labelHeightIn = 0.66;
+    const horizontalGap = 0.30;
+    const verticalGap = 0.0;
+
+    const pageWidth = 8.5;
+    const pageHeight = 11;
+
+    const baselineXOffset = .50 / 25.4;
+    const baselineYOffset = .28 / 25.4;
+
+    const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
+    const gridHeight = rows * labelHeightIn + (rows - 1) * verticalGap;
+
+    const offsetX = (pageWidth - gridWidth) / 2 + baselineXOffset + calibrationX;
+    const offsetY = (pageHeight - gridHeight) / 2 + baselineYOffset + calibrationY;
+
+    const style = document.createElement("style");
+    style.textContent = `
+      @page { size: letter; margin: 0; }
+      body {
+        font-family: Arial, sans-serif;
+        display: grid;
+        grid-template-columns: repeat(${cols}, ${labelWidthIn}in);
+        grid-auto-rows: ${labelHeightIn}in;
+        column-gap: ${horizontalGap}in;
+        row-gap: ${verticalGap}in;
+        justify-content: flex-start;
+        margin-left: ${offsetX}in;
+        margin-top: ${offsetY}in;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .label {
+        border-radius: 11px; 
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2px;
+      }
+      .label-title {
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 0px;
+        margin-top: 2px;
+      }
+      .label-barcode span {
+        font-family: 'CCode39';
+        font-size: 14px;
+        background-color: white;
+        padding: 1px 1px;
+        border-radius: 2px;
+        transform: scaleY(.8);
+        display: inline-block;
+      }
+      .label-subtitle {
+        font-size: 9px;
+        margin-top: 0px;
+        font-weight: bold;
+      }
+    `;
+    printWindow.document.head.appendChild(style);
+
+    allLabels.forEach(label => {
+      const clone = label.cloneNode(true);
+      const labelStyle = window.getComputedStyle(label);
+      clone.style.background = labelStyle.background;
+      clone.style.borderRadius = labelStyle.borderRadius;
+
+      const title = clone.querySelector(".label-title");
+      const titleStyle = window.getComputedStyle(label.querySelector(".label-title"));
+      title.style.color = titleStyle.color;
+      title.style.fontSize = titleStyle.fontSize;
+      title.style.fontWeight = titleStyle.fontWeight;
+
+      const barcode = clone.querySelector(".label-barcode");
+      const barcodeStyle = window.getComputedStyle(label.querySelector(".label-barcode"));
+      barcode.style.fontFamily = barcodeStyle.fontFamily;
+
+      const subtitle = clone.querySelector(".label-subtitle");
+      const subtitleStyle = window.getComputedStyle(label.querySelector(".label-subtitle"));
+      subtitle.style.color = subtitleStyle.color;
+      subtitle.style.fontSize = subtitleStyle.fontSize;
+
+      printWindow.document.body.appendChild(clone);
+    });
+
+    printWindow.onafterprint = () => printWindow.close();
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  }
 });
-
-
-
-
-
-
