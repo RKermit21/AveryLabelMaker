@@ -335,7 +335,7 @@ function printPDFWithCalibration() {
   const cols = 4;
   const rows = 15;
   const labelWidthIn = 1.75;
-  const labelHeightIn = 0.667;
+  const labelHeightIn = 0.66;
   const horizontalGap = 0.30;
   const verticalGap = 0.0;
 
@@ -396,8 +396,9 @@ function printPDFWithCalibration() {
       display: inline-block;
     }
     .label-subtitle {
-      font-size: 10px;
+      font-size: 9px;
       margin-top: 0px;
+      font-weight: bold;
     }
   `;
   printWindow.document.head.appendChild(style);
@@ -435,6 +436,7 @@ function printPDFWithCalibration() {
 }
 
 });
+
 
 
 
