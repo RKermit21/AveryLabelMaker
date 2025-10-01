@@ -322,7 +322,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   modalClose.addEventListener("click", () => calibrationModal.style.display = "none");
 
-  // --- Feedback Modal ---
+  // --- Feedback Modal Fix ---
   const feedbackModalElem = document.createElement("div");
   feedbackModalElem.id = "feedbackModal";
   feedbackModalElem.style.position = "fixed";
