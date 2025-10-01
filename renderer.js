@@ -322,90 +322,93 @@ window.addEventListener("DOMContentLoaded", () => {
 
   modalClose.addEventListener("click", () => calibrationModal.style.display = "none");
 
- // --- Feedback Modal Fix (Blue Button with Green Glow on Hover/Click) ---
-const feedbackModalElem = document.createElement("div");
-feedbackModalElem.id = "feedbackModal";
-feedbackModalElem.style.position = "fixed";
-feedbackModalElem.style.top = "0";
-feedbackModalElem.style.left = "0";
-feedbackModalElem.style.width = "100%";
-feedbackModalElem.style.height = "100%";
-feedbackModalElem.style.backgroundColor = "rgba(0,0,0,0.5)";
-feedbackModalElem.style.display = "none";
-feedbackModalElem.style.justifyContent = "center";
-feedbackModalElem.style.alignItems = "center";
-feedbackModalElem.style.zIndex = "1000";
-feedbackModalElem.innerHTML = `
-  <div class="modal-content" style="
-    background: #111;
-    color: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    min-width: 300px;
-    max-width: 90%;
-    text-align: center;
-  ">
-    <h4>Send Feedback</h4>
-    <p>We'd love your feedback on this label maker!</p>
-    <button id="feedbackLink" style="
-      background: #005a9e;
-      color: white;
-      font-weight: bold;
-      padding: 10px 20px;
-      border: 2px solid #005a9e;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.2s;
-    ">Go to Form</button>
-    <br/>
-    <button id="feedbackModalClose" style="
-      margin-top: 15px;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      background: #ff1a1a;
-      color: #fff;
-      cursor: pointer;
-    ">Close</button>
-  </div>
-`;
-document.body.appendChild(feedbackModalElem);
-
-const feedbackLink = document.getElementById("feedbackLink");
-const feedbackClose = document.getElementById("feedbackModalClose");
-
-// Hover and active glow effect
-feedbackLink.addEventListener("mouseenter", () => {
-  feedbackLink.style.boxShadow = "0 0 10px #39ff14, 0 0 20px #39ff14 inset";
-});
-feedbackLink.addEventListener("mouseleave", () => {
-  feedbackLink.style.boxShadow = "none";
-});
-feedbackLink.addEventListener("mousedown", () => {
-  feedbackLink.style.boxShadow = "0 0 15px #39ff14, 0 0 25px #39ff14 inset";
-});
-feedbackLink.addEventListener("mouseup", () => {
-  feedbackLink.style.boxShadow = "0 0 10px #39ff14, 0 0 20px #39ff14 inset";
-});
-
-feedbackBtn.addEventListener("click", () => {
-  feedbackModalElem.style.display = "flex";
-});
-
-feedbackClose.addEventListener("click", () => {
+  // --- Feedback Modal (Blue Button with Green Glow + Scale Hover) ---
+  const feedbackModalElem = document.createElement("div");
+  feedbackModalElem.id = "feedbackModal";
+  feedbackModalElem.style.position = "fixed";
+  feedbackModalElem.style.top = "0";
+  feedbackModalElem.style.left = "0";
+  feedbackModalElem.style.width = "100%";
+  feedbackModalElem.style.height = "100%";
+  feedbackModalElem.style.backgroundColor = "rgba(0,0,0,0.5)";
   feedbackModalElem.style.display = "none";
-});
+  feedbackModalElem.style.justifyContent = "center";
+  feedbackModalElem.style.alignItems = "center";
+  feedbackModalElem.style.zIndex = "1000";
+  feedbackModalElem.innerHTML = `
+    <div class="modal-content" style="
+      background: #111;
+      color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      min-width: 300px;
+      max-width: 90%;
+      text-align: center;
+    ">
+      <h4>Send Feedback</h4>
+      <p>We'd love your feedback on this label maker!</p>
+      <button id="feedbackLink" style="
+        background: #005a9e;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: 2px solid #005a9e;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      ">Go to Form</button>
+      <br/>
+      <button id="feedbackModalClose" style="
+        margin-top: 15px;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        background: #ff1a1a;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      ">Close</button>
+    </div>
+  `;
+  document.body.appendChild(feedbackModalElem);
 
-window.addEventListener("click", (e) => {
-  if (e.target === feedbackModalElem) {
+  const feedbackLink = document.getElementById("feedbackLink");
+  const feedbackClose = document.getElementById("feedbackModalClose");
+
+  // --- Hover / Click Effects ---
+  feedbackLink.addEventListener("mouseenter", () => {
+    feedbackLink.style.transform = "scale(1.05)";
+    feedbackLink.style.boxShadow = "0 0 12px #005a9e";
+  });
+  feedbackLink.addEventListener("mouseleave", () => {
+    feedbackLink.style.transform = "scale(1)";
+    feedbackLink.style.boxShadow = "none";
+  });
+  feedbackLink.addEventListener("mousedown", () => {
+    feedbackLink.style.boxShadow = "0 0 18px #39ff14";
+  });
+  feedbackLink.addEventListener("mouseup", () => {
+    feedbackLink.style.boxShadow = "0 0 12px #005a9e";
+  });
+
+  feedbackClose.addEventListener("mouseenter", () => feedbackClose.style.transform = "scale(1.05)");
+  feedbackClose.addEventListener("mouseleave", () => feedbackClose.style.transform = "scale(1)");
+
+  feedbackBtn.addEventListener("click", () => {
+    feedbackModalElem.style.display = "flex";
+  });
+
+  feedbackClose.addEventListener("click", () => {
     feedbackModalElem.style.display = "none";
-  }
-});
+  });
 
-feedbackLink.addEventListener("click", () => {
-  window.open("https://forms.office.com", "_blank");
-});
+  window.addEventListener("click", (e) => {
+    if (e.target === feedbackModalElem) feedbackModalElem.style.display = "none";
+  });
 
+  feedbackLink.addEventListener("click", () => {
+    window.open("https://forms.office.com", "_blank");
+  });
 
   // --- Print PDF Function ---
   function printPDFWithCalibration() {
@@ -509,4 +512,3 @@ feedbackLink.addEventListener("click", () => {
     printWindow.print();
   }
 });
-
