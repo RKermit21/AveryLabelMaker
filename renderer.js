@@ -407,7 +407,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   feedbackLink.addEventListener("click", () => {
-    window.open("https://forms.office.com", "_blank");
+    window.open("https://forms.office.com/r/XyFMpjNwma", "_blank");
   });
 
   // --- Print PDF Function ---
@@ -512,5 +512,6 @@ window.addEventListener("DOMContentLoaded", () => {
     printWindow.print();
   }
 });
+
 
 
