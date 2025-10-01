@@ -18,16 +18,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const printPdfBtn = document.getElementById("printPDF");
 
   // --- Feedback Button ---
-  const feedbackBtn = document.createElement("button");
-  feedbackBtn.id = "feedbackBtn";
-  feedbackBtn.textContent = "Feedback";
-  printPdfBtn.parentNode.insertBefore(feedbackBtn, printPdfBtn);
-
-  // --- Export Button ---
-  const exportBtn = document.createElement("button");
-  exportBtn.id = "exportExcel";
-  exportBtn.textContent = "Export to Excel";
-  printPdfBtn.parentNode.insertBefore(exportBtn, printPdfBtn);
+  const feedbackBtn = document.getElementById("feedbackBtn");
 
   if (!labelContainer) return;
 
@@ -261,6 +252,7 @@ window.addEventListener("DOMContentLoaded", () => {
   safeAddListener(barcodeInput, "change", editLabels);
 
   // --- Export to Excel ---
+  const exportBtn = document.getElementById("exportExcel");
   safeAddListener(exportBtn, "click", () => {
     let csvContent = "data:text/csv;charset=utf-8,Title,Serial\n";
     labelContainer.querySelectorAll(".label").forEach(label => {
@@ -331,35 +323,66 @@ window.addEventListener("DOMContentLoaded", () => {
   modalClose.addEventListener("click", () => calibrationModal.style.display = "none");
 
   // --- Feedback Modal ---
-  const feedbackModal = document.createElement("div");
-  feedbackModal.id = "feedbackModal";
-  feedbackModal.style.display = "none";
-  feedbackModal.innerHTML = `
-    <div class="modal-content">
+  const feedbackModalElem = document.createElement("div");
+  feedbackModalElem.id = "feedbackModal";
+  feedbackModalElem.style.position = "fixed";
+  feedbackModalElem.style.top = "0";
+  feedbackModalElem.style.left = "0";
+  feedbackModalElem.style.width = "100%";
+  feedbackModalElem.style.height = "100%";
+  feedbackModalElem.style.backgroundColor = "rgba(0,0,0,0.5)";
+  feedbackModalElem.style.display = "none";
+  feedbackModalElem.style.justifyContent = "center";
+  feedbackModalElem.style.alignItems = "center";
+  feedbackModalElem.style.zIndex = "1000";
+  feedbackModalElem.innerHTML = `
+    <div class="modal-content" style="
+      background: #111;
+      color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      min-width: 300px;
+      max-width: 90%;
+      text-align: center;
+    ">
       <h4>Send Feedback</h4>
       <p>We'd love your feedback on this label maker!</p>
       <button class="neon-button" id="feedbackLink">Go to Form</button>
-      <button id="feedbackClose">Close</button>
+      <button id="feedbackModalClose" style="
+        margin-top: 10px;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        background: #ff1a1a;
+        color: #fff;
+        cursor: pointer;
+      ">Close</button>
     </div>
   `;
-  document.body.appendChild(feedbackModal);
+  document.body.appendChild(feedbackModalElem);
 
   const feedbackLink = document.getElementById("feedbackLink");
-  const feedbackClose = document.getElementById("feedbackClose");
+  const feedbackClose = document.getElementById("feedbackModalClose");
 
   feedbackBtn.addEventListener("click", () => {
-    feedbackModal.style.display = "flex";
+    feedbackModalElem.style.display = "flex";
   });
 
   feedbackClose.addEventListener("click", () => {
-    feedbackModal.style.display = "none";
+    feedbackModalElem.style.display = "none";
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === feedbackModalElem) {
+      feedbackModalElem.style.display = "none";
+    }
   });
 
   feedbackLink.addEventListener("click", () => {
     window.open("https://forms.office.com", "_blank");
   });
 
-  // --- Print PDF Function (existing) ---
+  // --- Print PDF Function ---
   function printPDFWithCalibration() {
     const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60); 
     const printWindow = window.open("", "_blank");
