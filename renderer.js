@@ -346,8 +346,8 @@ window.addEventListener("DOMContentLoaded", () => {
       text-align: center;
     ">
       <h4>Send Feedback</h4>
-      <p>We'd love your feedback on this label maker!</p>
-      <button id="feedbackLink" style="
+      <p>I'd love your feedback on this label maker!</p>
+      <button id="https://forms.office.com/Pages/ResponsePage.aspx?id=gwDJdMYDOkWAHJJRzdF-uKnzbtRuUdtCsj8HXarEJIJUOVVaSzBSN1YyMU83QVVZUDRMNDRHTUtPTC4u" style="
         background: #005a9e;
         color: white;
         font-weight: bold;
@@ -512,3 +512,4 @@ window.addEventListener("DOMContentLoaded", () => {
     printWindow.print();
   }
 });
+
