@@ -461,7 +461,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
       .label-title {
         font-weight: bold;
-        font-size: 12px;
+        font-size: 10px;
         margin-bottom: 0px;
         margin-top: 2px;
       }
@@ -512,6 +512,7 @@ window.addEventListener("DOMContentLoaded", () => {
     printWindow.print();
   }
 });
+
 
 
 
