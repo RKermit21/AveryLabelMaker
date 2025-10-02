@@ -417,8 +417,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const cols = 4;
     const rows = 15;
-    const labelWidthIn = 1.75;
-    const labelHeightIn = 0.66;
+    const labelWidthIn = 1.75in;
+    const labelHeightIn = 0.66in;
     const horizontalGap = 0.30;
     const verticalGap = 0.0;
 
@@ -512,6 +512,7 @@ window.addEventListener("DOMContentLoaded", () => {
     printWindow.print();
   }
 });
+
 
 
 
