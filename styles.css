@@ -137,6 +137,7 @@ header h1 {
   font-family: "CCode39", monospace;
   text-align: center;
   font-size: 14px;
+  transform: scaleY(.8);
 }
 
 .label-subtitle {
@@ -388,6 +389,7 @@ header h1 {
   transform: scale(1.08);
   box-shadow: 0 0 14px rgba(217, 83, 79, 0.7); /* red glow */
 }
+
 
 
 
