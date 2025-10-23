@@ -435,7 +435,12 @@ window.addEventListener("DOMContentLoaded", () => {
     const offsetY = (pageHeight - gridHeight) / 2 + baselineYOffset + calibrationY;
 
     const style = document.createElement("style");
-    style.textContent = `
+    style.textContent = ` 
+      @font-face {
+      font-family: 'CCod39';
+      src: url('CCode39.ttf') format('truetype');
+      }
+    
       @page { size: letter; margin: 0; }
       body {
         font-family: Arial, sans-serif;
@@ -512,6 +517,7 @@ window.addEventListener("DOMContentLoaded", () => {
     printWindow.print();
   }
 });
+
 
 
 
