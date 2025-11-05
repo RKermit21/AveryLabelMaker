@@ -31,6 +31,7 @@
         <p>3) Select Print. Make sure 'Actual Size' is selected in Print Dialogue</p>
         <p>** Batch mode auto-advances to next label; inherits Color/Title</p>
       </div>
+
       <div class="input-forms">
         <!-- Color Dropdown -->
         <div class="color-selector">
@@ -45,8 +46,16 @@
           </div>
         </div>
 
-        <!-- Inputs -->
-        <input type="text" id="titleInput" placeholder="Enter Title">
+        <!-- ✅ NEW Title Dropdown + Custom input -->
+        <select id="titleSelect" style="margin-left:6px;">
+          <option value="default" selected>Fresno Unified School District</option>
+          <option value="custom">Custom Title</option>
+        </select>
+
+        <input type="text" id="titleInput" placeholder="Enter Custom Title"
+               style="display:none; margin-left:6px;">
+
+        <!-- Barcode Input -->
         <input type="text" id="barcodeInput" placeholder="Enter Barcode (Scan or Manual)">
       </div>
     </div>
@@ -57,14 +66,8 @@
     <!-- Labels generated dynamically by renderer.js -->
   </div>
 
-  <!-- Calibration Modal (added dynamically by renderer.js) -->
-
-
-
   <!-- Load jsPDF for web PDF generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>
-
-

@@ -3,6 +3,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const titleInput = document.getElementById("titleInput");
   const barcodeInput = document.getElementById("barcodeInput");
 
+  // ✅ NEW — title dropdown
+  const titleSelect = document.getElementById("titleSelect");
+
   const colorSelector = document.querySelector(".color-selector");
   const colorSelected = colorSelector.querySelector(".color-selected");
   const colorOptions = colorSelector.querySelectorAll(".color-option");
@@ -16,8 +19,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const selectAllBtn = document.getElementById("selectAll");
   const clearAllBtn = document.getElementById("clearAll");
   const printPdfBtn = document.getElementById("printPDF");
-
-  // --- Feedback Button ---
   const feedbackBtn = document.getElementById("feedbackBtn");
 
   if (!labelContainer) return;
@@ -25,11 +26,9 @@ window.addEventListener("DOMContentLoaded", () => {
   let batchMode = false;
   let selectedLabels = [];
 
-  // --- Calibration offsets (in inches) ---
   let calibrationX = 0;
   let calibrationY = 0;
 
-  // --- Generate label grid ---
   function createLabelGrid(rows = 15, cols = 4) {
     labelContainer.innerHTML = "";
     const total = rows * cols;
@@ -67,7 +66,17 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   createLabelGrid();
 
-  // --- Helper: update barcode UI ---
+  // ✅ NEW — Show/hide custom title box
+  titleSelect.addEventListener("change", () => {
+    if (titleSelect.value === "custom") {
+      titleInput.style.display = "inline-block";
+      titleInput.focus();
+    } else {
+      titleInput.style.display = "none";
+      titleInput.value = "";
+    }
+  });
+
   function updateLabelBarcodeUI(label, barcodeText) {
     const barcodeDiv = label.querySelector(".label-barcode");
     barcodeDiv.innerHTML = "";
@@ -86,31 +95,19 @@ window.addEventListener("DOMContentLoaded", () => {
     if (el) el.addEventListener(event, handler);
   }
 
-  // --- Batch toggle ---
   safeAddListener(batchToggleBtn, "click", () => {
     batchMode = !batchMode;
-    if (batchMode) {
-      batchToggleBtn.style.backgroundColor = "#39ff14";
-      batchToggleBtn.style.color = "#000";
-      batchToggleBtn.style.boxShadow = "0 0 10px #39ff14, 0 0 20px #39ff14";
-    } else {
-      batchToggleBtn.style.backgroundColor = "#005a9e";
-      batchToggleBtn.style.color = "#fff";
-      batchToggleBtn.style.boxShadow = "none";
-    }
+    batchToggleBtn.style.backgroundColor = batchMode ? "#39ff14" : "#005a9e";
+    batchToggleBtn.style.color = batchMode ? "#000" : "#fff";
+    batchToggleBtn.style.boxShadow = batchMode ? "0 0 10px #39ff14, 0 0 20px #39ff14" : "none";
   });
 
-  // --- Sticky form shadow ---
   const form = document.getElementById("barcodeForm");
   window.addEventListener("scroll", () => {
-    if (window.scrollY > form.offsetTop - 60) {
-      form.classList.add("scrolled");
-    } else {
-      form.classList.remove("scrolled");
-    }
+    if (window.scrollY > form.offsetTop - 60) form.classList.add("scrolled");
+    else form.classList.remove("scrolled");
   });
 
-  // --- Apply color to label ---
   function applyColor(label, color) {
     label.dataset.color = color || "default";
     label.style.background = "white";
@@ -137,42 +134,39 @@ window.addEventListener("DOMContentLoaded", () => {
       label.style.background = `linear-gradient(to bottom, #0000FF 0%, #0000FF 25%, ${selectedColorHex} 25%, ${selectedColorHex} 50%, white 50%, white 100%)`;
     }
 
-    if (["red", "green", "orange", "blue", "yellow"].includes(color)) {
-      titleDiv.style.color = "white";
-    } else {
-      titleDiv.style.color = "black";
-    }
+    titleDiv.style.color = ["red", "green", "orange", "blue", "yellow"].includes(color) ? "white" : "black";
   }
 
-  // --- Color dropdown ---
   colorSelected.addEventListener("click", () => colorSelector.classList.toggle("active"));
   colorOptions.forEach(option => {
     option.addEventListener("click", () => {
       selectedColor = option.dataset.color;
       colorSelected.textContent = option.textContent;
       colorSelector.classList.remove("active");
-
-      if (selectedLabels.length > 0) {
-        selectedLabels.forEach(label => applyColor(label, selectedColor));
-      }
+      if (selectedLabels.length > 0) selectedLabels.forEach(label => applyColor(label, selectedColor));
     });
   });
+
   document.addEventListener("click", (e) => {
     if (!colorSelector.contains(e.target)) colorSelector.classList.remove("active");
   });
 
-  // --- Edit labels ---
+  // ✅ UPDATED — title selection logic added
   function editLabels() {
     if (selectedLabels.length === 0) return;
 
-    const titleVal = titleInput.value;
+    let titleVal = "Fresno Unified School District";
+    if (titleSelect.value === "custom" && titleInput.value.trim() !== "") {
+      titleVal = titleInput.value.trim();
+    }
+
     const barcodeVal = barcodeInput.value.trim();
 
     selectedLabels.forEach((label, idx) => {
       const titleDiv = label.querySelector(".label-title");
       const subtitleDiv = label.querySelector(".label-subtitle");
 
-      if (titleVal) titleDiv.textContent = titleVal;
+      titleDiv.textContent = titleVal;
 
       if (barcodeVal) {
         let serial = barcodeVal;
@@ -191,30 +185,15 @@ window.addEventListener("DOMContentLoaded", () => {
       label.classList.remove("selected");
     });
 
-    if (batchMode) {
-      const lastLabel = selectedLabels[selectedLabels.length - 1];
-      const nextIndex = parseInt(lastLabel.dataset.index) + 1;
-      selectedLabels = [];
-      if (nextIndex < labelContainer.children.length) {
-        const nextLabel = labelContainer.children[nextIndex];
-        selectedLabels.push(nextLabel);
-        nextLabel.classList.add("selected");
-      }
-    } else {
-      selectedLabels = [];
-    }
-
+    selectedLabels = batchMode ? [labelContainer.children[parseInt(selectedLabels.pop().dataset.index) + 1]] : [];
     barcodeInput.value = "";
   }
 
   safeAddListener(editSelectedBtn, "click", editLabels);
-  [titleInput, barcodeInput].forEach(input => {
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); editLabels(); }
-    });
-  });
+  [titleInput, barcodeInput].forEach(input => input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); editLabels(); }
+  }));
 
-  // --- Clear selection ---
   safeAddListener(clearSelectionBtn, "click", () => {
     selectedLabels.forEach(label => {
       label.querySelector(".label-title").textContent = "";
@@ -222,7 +201,7 @@ window.addEventListener("DOMContentLoaded", () => {
       label.querySelector(".label-subtitle").textContent = "";
       label.dataset.color = "default";
       label.style.background = "white";
-      label.classList.remove("selected", "blue", "red", "yellow", "green", "orange");
+      label.classList.remove("selected");
       label.querySelector(".label-title").style.color = "black";
     });
     selectedLabels = [];
@@ -230,20 +209,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
   safeAddListener(selectAllBtn, "click", () => {
     selectedLabels = [];
-    labelContainer.querySelectorAll(".label").forEach((label) => {
+    labelContainer.querySelectorAll(".label").forEach(label => {
       selectedLabels.push(label);
       label.classList.add("selected");
     });
   });
 
   safeAddListener(clearAllBtn, "click", () => {
-    labelContainer.querySelectorAll(".label").forEach((label) => {
+    labelContainer.querySelectorAll(".label").forEach(label => {
       label.querySelector(".label-title").textContent = "";
       label.querySelector(".label-barcode").innerHTML = "";
       label.querySelector(".label-subtitle").textContent = "";
       label.dataset.color = "default";
       label.style.background = "white";
-      label.classList.remove("selected", "blue", "red", "yellow", "green", "orange");
+      label.classList.remove("selected");
       label.querySelector(".label-title").style.color = "black";
     });
     selectedLabels = [];
@@ -251,7 +230,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   safeAddListener(barcodeInput, "change", editLabels);
 
-  // --- Export to Excel ---
   const exportBtn = document.getElementById("exportExcel");
   safeAddListener(exportBtn, "click", () => {
     let csvContent = "data:text/csv;charset=utf-8,Title,Serial\n";
@@ -269,7 +247,6 @@ window.addEventListener("DOMContentLoaded", () => {
     document.body.removeChild(link);
   });
 
-  // --- Calibration Modal ---
   const calibrationModal = document.createElement("div");
   calibrationModal.id = "calibrationModal";
   calibrationModal.style.display = "none";
@@ -309,7 +286,7 @@ window.addEventListener("DOMContentLoaded", () => {
     calibrationX = parseFloat(modalX.value)/25.4 || 0;
     calibrationY = parseFloat(modalY.value)/25.4 || 0;
     calibrationModal.style.display = "none";
-    printPDFWithCalibration();
+    printPDFWithCalibration(); // ✅ still here, print works
   });
 
   modalReset.addEventListener("click", () => {
@@ -322,7 +299,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   modalClose.addEventListener("click", () => calibrationModal.style.display = "none");
 
-  // --- Feedback Modal (Blue Button with Green Glow + Scale Hover) ---
   const feedbackModalElem = document.createElement("div");
   feedbackModalElem.id = "feedbackModal";
   feedbackModalElem.style.position = "fixed";
@@ -375,42 +351,14 @@ window.addEventListener("DOMContentLoaded", () => {
   const feedbackLink = document.getElementById("feedbackLink");
   const feedbackClose = document.getElementById("feedbackModalClose");
 
-  // --- Hover / Click Effects ---
-  feedbackLink.addEventListener("mouseenter", () => {
-    feedbackLink.style.transform = "scale(1.05)";
-    feedbackLink.style.boxShadow = "0 0 12px #005a9e";
-  });
-  feedbackLink.addEventListener("mouseleave", () => {
-    feedbackLink.style.transform = "scale(1)";
-    feedbackLink.style.boxShadow = "none";
-  });
-  feedbackLink.addEventListener("mousedown", () => {
-    feedbackLink.style.boxShadow = "0 0 18px #39ff14";
-  });
-  feedbackLink.addEventListener("mouseup", () => {
-    feedbackLink.style.boxShadow = "0 0 12px #005a9e";
-  });
-
-  feedbackClose.addEventListener("mouseenter", () => feedbackClose.style.transform = "scale(1.05)");
-  feedbackClose.addEventListener("mouseleave", () => feedbackClose.style.transform = "scale(1)");
-
-  feedbackBtn.addEventListener("click", () => {
-    feedbackModalElem.style.display = "flex";
-  });
-
-  feedbackClose.addEventListener("click", () => {
-    feedbackModalElem.style.display = "none";
-  });
-
-  window.addEventListener("click", (e) => {
-    if (e.target === feedbackModalElem) feedbackModalElem.style.display = "none";
-  });
-
   feedbackLink.addEventListener("click", () => {
     window.open("https://forms.office.com/r/XyFMpjNwma", "_blank");
   });
 
-  // --- Print PDF Function ---
+  feedbackBtn.addEventListener("click", () => feedbackModalElem.style.display = "flex");
+  feedbackClose.addEventListener("click", () => feedbackModalElem.style.display = "none");
+  window.addEventListener("click", (e) => { if (e.target === feedbackModalElem) feedbackModalElem.style.display = "none"; });
+
   function printPDFWithCalibration() {
     const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60); 
     const printWindow = window.open("", "_blank");
@@ -517,12 +465,3 @@ window.addEventListener("DOMContentLoaded", () => {
     printWindow.print();
   }
 });
-
-
-
-
-
-
-
-
-
