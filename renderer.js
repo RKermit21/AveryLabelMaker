@@ -30,41 +30,73 @@ window.addEventListener("DOMContentLoaded", () => {
   let calibrationY = 0;
 
   function createLabelGrid(rows = 15, cols = 4) {
-    labelContainer.innerHTML = "";
-    const total = rows * cols;
+  labelContainer.innerHTML = "";
+  const total = rows * cols;
 
-    for (let i = 0; i < total; i++) {
-      const label = document.createElement("div");
-      label.classList.add("label");
-      label.dataset.index = i;
-      label.dataset.color = "default";
+  for (let i = 0; i < total; i++) {
+    const label = document.createElement("div");
+    label.classList.add("label");
+    label.dataset.index = i;
+    label.dataset.color = "default";
 
-      const titleDiv = document.createElement("div");
-      titleDiv.classList.add("label-title");
-      label.appendChild(titleDiv);
+    // ✅ UI index (not printed)
+    const indexTag = document.createElement("div");
+    indexTag.classList.add("label-index");
+    indexTag.textContent = i + 1;
+    label.appendChild(indexTag);
 
-      const barcodeDiv = document.createElement("div");
-      barcodeDiv.classList.add("label-barcode");
-      label.appendChild(barcodeDiv);
+    const titleDiv = document.createElement("div");
+    titleDiv.classList.add("label-title");
+    label.appendChild(titleDiv);
 
-      const subtitleDiv = document.createElement("div");
-      subtitleDiv.classList.add("label-subtitle");
-      label.appendChild(subtitleDiv);
+    const barcodeDiv = document.createElement("div");
+    barcodeDiv.classList.add("label-barcode");
+    label.appendChild(barcodeDiv);
 
-      label.addEventListener("click", () => {
-        if (!selectedLabels.includes(label)) {
-          selectedLabels.push(label);
-          label.classList.add("selected");
-        } else {
-          selectedLabels = selectedLabels.filter((l) => l !== label);
-          label.classList.remove("selected");
-        }
-      });
+    const subtitleDiv = document.createElement("div");
+    subtitleDiv.classList.add("label-subtitle");
+    label.appendChild(subtitleDiv);
 
-      labelContainer.appendChild(label);
-    }
+    label.addEventListener("click", () => {
+      if (!selectedLabels.includes(label)) {
+        selectedLabels.push(label);
+        label.classList.add("selected");
+      } else {
+        selectedLabels = selectedLabels.filter((l) => l !== label);
+        label.classList.remove("selected");
+      }
+    });
+
+    labelContainer.appendChild(label);
   }
+}
+
   createLabelGrid();
+let zoom = 1;
+const zoomStep = 0.1;
+const maxZoom = 2.0;
+const minZoom = 0.5;
+
+const zoomInBtn = document.getElementById("zoomIn");
+const zoomOutBtn = document.getElementById("zoomOut");
+const zoomLevelText = document.getElementById("zoomLevel");
+
+function updateZoom() {
+  labelContainer.style.transformOrigin = "top center";
+  labelContainer.style.transform = `scale(${zoom})`;
+  zoomLevelText.textContent = `${Math.round(zoom * 100)}%`;
+}
+
+zoomInBtn.addEventListener("click", () => {
+  if (zoom < maxZoom) zoom += zoomStep;
+  updateZoom();
+});
+
+zoomOutBtn.addEventListener("click", () => {
+  if (zoom > minZoom) zoom -= zoomStep;
+  updateZoom();
+});
+
 
   // ✅ NEW — Show/hide custom title box
   titleSelect.addEventListener("change", () => {
@@ -433,13 +465,18 @@ window.addEventListener("DOMContentLoaded", () => {
         font-weight: bold;
       }
     `;
+
     printWindow.document.head.appendChild(style);
 
     allLabels.forEach(label => {
       const clone = label.cloneNode(true);
+      
       const labelStyle = window.getComputedStyle(label);
       clone.style.background = labelStyle.background;
       clone.style.borderRadius = labelStyle.borderRadius;
+      // ✅ Remove index number so it never prints
+      const idxEl = clone.querySelector(".label-index");
+      if (idxEl) idxEl.remove();
 
       const title = clone.querySelector(".label-title");
       const titleStyle = window.getComputedStyle(label.querySelector(".label-title"));

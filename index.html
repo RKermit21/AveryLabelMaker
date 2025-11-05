@@ -7,7 +7,7 @@
 </head>
 <body>
   <header>
-    <h1>Label Maker for Avery 61533 Template v1.0</h1>
+    <h1>Label Maker for Avery 61533 Template v1.1</h1>
     <div class="header-buttons">
       <button id="editSelected">Edit</button>
       <button id="batchToggle">Batch Mode</button>
@@ -27,7 +27,7 @@
     <div class="form-row">
       <div class="instructions">
         <p>1) Select label(s) to be edited or Select All Button</p>
-        <p>2) Select label color, Enter Title, Barcode & click Edit Button or Press Enter</p>
+        <p>2) Select label color, Title, Barcode & click Edit Button or Press Enter</p>
         <p>3) Select Print. Make sure 'Actual Size' is selected in Print Dialogue</p>
         <p>** Batch mode auto-advances to next label; inherits Color/Title</p>
       </div>
@@ -65,6 +65,12 @@
   <div class="label-container" id="labelContainer">
     <!-- Labels generated dynamically by renderer.js -->
   </div>
+<div id="zoomControls">
+  <button id="zoomIn">+</button>
+  <span id="zoomLevel">100%</span>
+  <button id="zoomOut">−</button>
+</div>
+
 
   <!-- Load jsPDF for web PDF generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
