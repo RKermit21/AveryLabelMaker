@@ -1,461 +1,667 @@
-@font-face {
-    font-family: 'CCode39';
-    src: url('CCode39.ttf') format('truetype');
+/* ================================
+   Global Layout & Typography
+================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f3f4f7;
+  color: #222;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f2f5;
-  margin: 0;
-  padding: 0;
+  min-height: 100vh;
 }
 
+/* ================================
+   Header / Top Bar
+================================== */
+
 header {
-  position: sticky;
-  top: 0;
-  background-color: #0078d7;
-  z-index: 1000;
-  color: #fff;
-  padding: 10px 20px;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  height: 60px;
+
+  background: #ffffff;
+  padding: 16px 24px 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Left: logo + text */
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  /* ⭐ FIXED SYNTAX & WIDTH CONTROL */
+  flex: 0 0 42%;     /* ← This controls how much space the title area takes */
+  min-width: 280px;
+}
+
+.title-logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  user-select: none;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: logoFloatIn 0.6s ease-out forwards;
+}
+
+@keyframes logoFloatIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
 }
 
 header h1 {
   margin: 0;
   font-size: 20px;
+  font-weight: 600;
+  color: #1f2933;
+  white-space: nowrap;
 }
 
-.header-buttons button {
-  background-color: #005a9e;
-  color: white;
-  border: none;
+/* Right: header buttons */
+.header-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+/* =========================================
+   BUTTON COLORS (Using your existing styles)
+========================================= */
+
+/* White base buttons (unchanged) */
+.header-buttons button,
+#zoomControls button {
+  border-radius: 6px;
+  border: 1px solid #d0d7e2;
+  background: #f7f9fc;
+  color: #1f2933;
   padding: 6px 12px;
-  margin-left: 8px;
-  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: background 0.15s ease, box-shadow 0.15s ease,
+              transform 0.07s ease, border-color 0.15s ease;
 }
 
-.header-buttons button:hover {
-  background-color: #004578;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+.header-buttons button:hover,
+#zoomControls button:hover {
+  background: #e9eef9;
+  border-color: #b3c1e0;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.18);
+  transform: translateY(-1px);
 }
 
-.header-buttons button:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+/* =========================================
+   SPECIAL BUTTONS
+========================================= */
+
+/* “Clear All” → match white buttons */
+#clearAll {
+  background-color: #f7f9fc !important;
+  color: #1f2933 !important;
+  border: 1px solid #d0d7e2 !important;
+}
+
+#clearAll:hover {
+  background-color: #eef1f5 !important;
+}
+
+/* “Edit” & “Print” blue buttons (unchanged) */
+#editSelected,
+#printPDF {
+  background: #2563eb;
+  border-color: #1d4fd8;
+  color: white;
+}
+
+#editSelected:hover,
+#printPDF:hover {
+  background: #1d4fd8;
+}
+
+/* =========================================
+   Batch Toggle Button
+========================================= */
+
+/* Default batch button — match white buttons */
+#batchToggle {
+  background-color: #f7f9fc !important;
+  border: 1px solid #d0d7e2 !important;
+  color: #1f2933 !important;
+  border-radius: 6px;
+  padding: 8px 14px;
+}
+
+/* Hover when OFF */
+#batchToggle:hover {
+  background-color: #eef1f5 !important;
+}
+
+/* GLOW MODE when ACTIVE */
+#batchToggle.active {
+  background: #39ff14 !important;
+  color: black !important;
+  border-color: #39ff14 !important;
+
+  /* Full neon glow */
+  box-shadow:
+    0 0 10px #39ff14,
+    0 0 20px #39ff14,
+    0 0 40px #39ff14 !important;
+}
+
+/* FORCE feedback button to stay floating bottom-right */
+#feedbackBtn {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+
+  background: #2563eb;
+  border-color: #1d4fd8;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(37,99,235,0.35);
+  padding: 8px 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  z-index: 9999 !important;
+
+  /* Undo any header/flex styling */
+  flex: none !important;
+  order: initial !important;
+  margin: 0 !important;
+}
+#feedbackBtn:hover {
+  background: #1d4fd8;
+  box-shadow: 0 6px 16px rgba(30,64,175,0.45);
+}
+
+
+/* ================================
+   Controls / Instructions
+================================== */
+
+.controls {
+  max-width: 1200px;
+  margin: 16px auto 0;
+  padding: 12px 16px 16px;
+  position: sticky;
+  top: 72px;
+  z-index: 40;
+  transition: box-shadow 0.25s ease;
+}
+
+.controls.scrolled {
+  background: #f3f4f7;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
 .form-row {
   display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .instructions {
-  margin-top: 9px;
-  font-size: 10px;
-  width: 250px;
-  text-align: left;
-  flex-shrink: 0;
+  flex: 1 1 260px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.1);
+  border: 1px solid #e0e4ef;
+  font-size: 13px;
+  color: #374151;
 }
+
+.instructions p {
+  margin: 4px 0;
+}
+
+.instructions p:first-child {
+  font-weight: 600;
+}
+
+/* ================================
+   Inputs
+================================== */
 
 .input-forms {
-  margin-top: 40px;
+  flex: 2 1 320px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex-grow: 1;
+  flex-wrap: wrap;
   align-items: center;
-  max-width: 400px;
-  margin-bottom: 25px;
+  gap: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.1);
+  border: 1px solid #e0e4ef;
 }
 
-.input-forms input[type="text"],
-.input-forms select {
-  font-size: 14px;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
-  background: #fff;
-}
-
-.label-container {
-  padding-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  column-gap: 18px;
-  row-gap: 0;
-  max-width: 800px;
-  margin: 20px auto;
-}
-
-.label {
-  width: 1.70in;
-  height: .58in;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  background-color: #fff;
-  border: 1px solid #ccc;
+#titleSelect,
+#titleInput,
+#barcodeInput {
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
-  position: relative;
+  border: 1px solid #d1d5db;
+  padding: 6px 10px;
+  font-size: 13px;
+  min-width: 190px;
+  background: #f9fafb;
 }
 
-.label:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+#titleInput {
+  display: none;
 }
 
-.label.selected {
-  border: 2px solid #0078d7;
-}
-
-.label-title {
-  font-weight: bold;
-  font-size: 9px;
-  text-align: center;
-  margin-bottom: 0;
-  margin-top: 2px;
-}
-
-.label-barcode {
-  font-family: "CCode39", monospace;
-  text-align: center;
-  font-size: 14px;
-  transform: scaleY(.8);
-}
-
-.label-subtitle {
-  font-size: 10px;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 4px;
-}
-
-#barcodeForm {
-  position: sticky;
-  top: 80px;
-  margin-bottom: 4px;
-  background: #f9f9f9;
-  z-index: 999;
-  border-bottom: 8px solid transparent;
-  transition: box-shadow 0.2s ease;
-}
-
-#barcodeForm .form-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 15%;
-  padding: 0px 20px;
-}
-
-#barcodeForm.scrolled {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
-}
-
-.label::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 50%;
-  width: 100%;
-  border-radius: 6px 6px 0 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.label.blue::before { background-color: blue; }
-.label.red::before     { background-color: red; }
-.label.yellow::before  { background-color: yellow; }
-.label.green::before   { background-color: lightgreen; }
-.label.orange::before  { background-color: orange; }
-
-.label-title,
-.label-barcode,
-.label-subtitle {
-  position: relative;
-  z-index: 1;
-}
+/* ================================
+   Color Selector
+================================== */
 
 .color-selector {
   position: relative;
-  width: 180px;
-  margin-bottom: 6px;
-  font-size: 14px;
-  user-select: none;
+  min-width: 160px;
+}
+
+/* FORCE dropdown header to always look neutral after choosing a color */
+.color-selector:not(.active) .color-selected {
+  background: #f9fafb !important;
+  color: #111827 !important;
+  border: 1px solid #d1d5db !important;
 }
 
 .color-selected {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 6px 8px;
-  background-color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
   cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
+.color-selected::after {
+  content: "▾";
+  font-size: 10px;
+  color: #6b7280;
+}
+
+/* ============================================================
+   FULL-WIDTH COLOR BLOCK OPTIONS + macOS Animation (Final)
+============================================================ */
 
 .color-options {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   left: 0;
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
+  min-width: 100%;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 4px 12px rgba(15,23,42,0.20);
+  padding: 0;
+  z-index: 9999 !important;
+  overflow: hidden;
+
+  /* macOS-style animation */
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+  transition:
+    opacity 140ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 180ms cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* hidden by default */
   display: none;
-  max-height: 150px;
-  overflow-y: auto;
-  z-index: 100;
 }
-
-.color-option {
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
-.color-option[data-color="blue"]:hover { background-color: #045BDC; color: #fff; }
-.color-option[data-color="red"]:hover { background-color: #FF6347; color: #fff; }
-.color-option[data-color="yellow"]:hover { background-color: #FFD700; color: #000; }
-.color-option[data-color="green"]:hover { background-color: #32CD32; color: #fff; }
-.color-option[data-color="orange"]:hover { background-color: #FFA500; color: #fff; }
-.color-option[data-color="default"]:hover { background-color: #eee; color: #000; }
 
 .color-selector.active .color-options {
   display: block;
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
-/* ---------- Calibration Modal ---------- */
-#calibrationModal {
-  display: none; /* Hidden by default */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+.color-option {
+  padding: 8px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: #fff;
+  font-weight: 600;
+  transition: filter 0.15s ease;
+}
+
+/* 🎨 Solid, full-width color blocks */
+.color-option[data-color="default"] {
+  background: #ffffff;
+  color: #000;
+}
+
+.color-option[data-color="blue"] {
+  background: #045BDC;
+}
+
+.color-option[data-color="red"] {
+  background: #FF1A1A;
+}
+
+.color-option[data-color="yellow"] {
+  background: #FFD700;
+  color: #000;
+}
+
+.color-option[data-color="green"] {
+  background: #32CD32;
+}
+
+.color-option[data-color="orange"] {
+  background: #FFA500;
+}
+
+/* Hover effect (subtle brighten) */
+.color-option:hover {
+  filter: brightness(1.15);
+}
+
+/* Prevent label hover highlight when dropdown is open */
+.color-selector.active {
+  position: relative;
+  z-index: 9999 !important;
+}
+
+/* ================================
+   Label Grid
+================================== */
+
+.label-container {
+  max-width: 900px;
+  margin: 10px auto 80px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e0e4ef;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.12);
+  display: grid;
+  grid-template-columns: repeat(4, 1.75in);
+  grid-auto-rows: 0.66in;
+  column-gap: 0.26in;
+  row-gap: 0;
+  justify-content: center;
+  transform-origin: top center;
+}
+
+/* Individual label */
+
+.label {
+  position: relative;
+  border-radius: 7px;
+  padding: 2px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.15);
+  overflow: hidden;
+  display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  transition:
+    box-shadow 0.15s ease,
+    outline 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.18s cubic-bezier(.34,1.56,.64,1);
 }
 
-#calibrationModal .modal-content {
-  background: #f9f9f9;
-  padding: 20px 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  min-width: 280px;
-  font-family: Arial, sans-serif;
-  text-align: center;
+/* Inner bounce wrapper */
+
+.label-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transform: scale(1);
+  transition: transform 0.22s cubic-bezier(.34,1.56,.64,1);
 }
 
-#calibrationModal h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #005a9e;
-}
-
-#calibrationModal label {
-  display: block;
-  margin: 10px 0;
-  font-size: 14px;
-  color: #333;
-}
-
-#calibrationModal input {
-  width: 80px;
-  padding: 5px;
-  margin-left: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-#calibrationModal button {
-  padding: 8px 15px;
-  margin: 5px 5px 0 0;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-#calibrationModal button:hover {
-  opacity: 0.85;
-}
-
-/* Apply button style (blue) */
-#modalApplyCalibration {
-  background-color: #005a9e;
-  color: #fff;
-}
-
-#modalApplyCalibration:hover {
-  background-color: #39ff14;
-  color: #000;
-  box-shadow: 0 0 8px #39ff14, 0 0 15px #39ff14;
-}
-
-/* Reset button style (orange) */
-#modalResetCalibration {
-  background-color: #FFA500;
-  color: #fff;
-}
-
-#modalResetCalibration:hover {
-  background-color: #ffcc33;
-  color: #000;
-}
-
-/* Close button style (red) */
-#modalCloseCalibration {
-  background-color: #ff4d4d;
-  color: #fff;
-}
-
-#modalCloseCalibration:hover {
-  background-color: #ff0000;
-  color: #fff;
-}
-
-/* ---------- Feedback Button ---------- */
-/* Floating Feedback Button (bottom-right, green) */
-#feedbackBtn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #28a745; /* green */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 18px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  z-index: 1000;
-}
-
-#feedbackBtn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 12px rgba(40, 167, 69, 0.6); /* green glow */
-}
-
-/* Modal Buttons Default (blue style) */
-#feedbackModal .modal-content button {
-  border: none;
-  border-radius: 6px;
-  padding: 10px 16px;
-  font-size: 13px;
-  margin-top: 10px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  color: white;
-}
-
-/* "Go to Form" Button (blue with blue glow) */
-#feedbackLink {
-  background-color: #0078d7; /* blue */
-}
-
-#feedbackLink:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 14px rgba(0, 120, 215, 0.8); /* brighter blue glow */
-}
-
-/* "Close" Button (red with red glow) */
-#feedbackModalClose {
-  background-color: #d9534f; /* red */
-}
-
-#feedbackModalClose:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 14px rgba(217, 83, 79, 0.7); /* red glow */
-}
-
-/* UI Only - Label Index */
-.label {
-  position: relative; /* required */
-}
+/* Label number */
 
 .label-index {
   position: absolute;
   top: 2px;
   left: 4px;
   font-size: 9px;
-  color: rgba(0,0,0,0.35);
-  font-weight: bold;
+  color: #9ca3af;
   pointer-events: none;
-  user-select: none;
 }
 
-/* Hide label numbers when printing */
+/* Apple-style hover */
+
+.label:hover {
+  outline: 2px solid #0078d4;
+  outline-offset: -2px;
+  background-color: rgba(0,120,212,0.10);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.28);
+  cursor: pointer;
+  z-index: 999 !important;
+}
+
+.label:hover .label-inner {
+  transform: scale(1.00); /* keep subtle */
+}
+
+/* Selected labels */
+
+.label.selected {
+  transform: none !important;
+  outline: none !important;
+  background-color: transparent !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.55);
+}
+
+.label.selected .label-inner {
+  transform: none !important;
+}
+
+/* Text inside labels */
+
+.label-title {
+  font-size: 8px;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.label-barcode span {
+  font-family: "CCode39", monospace;
+  font-size: 14px;
+  background: white;
+  padding: 1px 2px;
+  border-radius: 2px;
+  transform: scaleY(0.8);
+  display: inline-block;
+}
+
+.label-subtitle {
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* ================================
+   Zoom Controls
+================================== */
+
+#zoomControls {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 3px 10px rgba(15,23,42,0.18);
+  padding: 4px 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 55;
+}
+
+#zoomLevel {
+  font-size: 17px;
+  min-width: 44px;
+  text-align: center;
+}
+
+/* ================================
+   Calibration Modal (Fully Fixed)
+================================== */
+
+#calibrationModal {
+  position: fixed;
+  inset: 0;
+  display: none;               /* toggled by JS */
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 2000;
+  backdrop-filter: blur(3px);
+}
+
+#calibrationModal .modal-content {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px 22px;
+  width: 362px;
+  max-width: 90%;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.28);
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  animation: modalPop 0.18s ease-out;
+}
+
+/* Header text */
+#calibrationModal h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Labels + input lines */
+#calibrationModal label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Number inputs */
+#calibrationModal input[type="number"] {
+  width: 90px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-size: 14px;
+}
+
+#calibrationModal input[type="number"]:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.25);
+  background: #ffffff;
+}
+
+/* Buttons Row */
+#calibrationModal .modal-content button {
+  margin-right: 6px;
+  margin-top: 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  padding: 7px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  background: #f9fafb;
+  transition: all 0.15s ease;
+}
+
+#modalApplyCalibration {
+  background: #2563eb !important;
+  border-color: #1d4fd8 !important;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+#modalApplyCalibration:hover {
+  background: #1d4fd8 !important;
+}
+
+#modalResetCalibration:hover,
+#modalCloseCalibration:hover {
+  background: #e5e7eb;
+}
+
+/* Smooth pop animation */
+@keyframes modalPop {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ================================
+   PRINT MODE — Disable animations
+================================== */
+
 @media print {
+  .label-inner {
+    transform: none !important;
+    transition: none !important;
+  }
   .label-index {
     display: none !important;
   }
 }
 
-#zoomControls {
-  position: fixed;
-  bottom: 15px;
-  left: 15px;
-  background: rgba(0,0,0,0.65);
-  padding: 6px 10px;
-  border-radius: 8px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  z-index: 1000;
-  color: white;
-  font-size: 14px;
+/* ================================
+   Responsive
+================================== */
+
+@media (max-width: 900px) {
+  .label-container {
+    transform-origin: top center;
+  }
+
+  .header-buttons {
+    gap: 6px;
+  }
+
+  .input-forms {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #feedbackBtn {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
 }
-
-#zoomControls button {
-  width: 30px;
-  height: 30px;
-  font-size: 18px;
-  font-weight: bold;
-  background: #005a9e;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-#zoomControls button:hover {
-  background: #0a7be1;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

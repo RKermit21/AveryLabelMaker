@@ -3,7 +3,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const titleInput = document.getElementById("titleInput");
   const barcodeInput = document.getElementById("barcodeInput");
 
-  // ✅ NEW — title dropdown
+  // Title dropdown
   const titleSelect = document.getElementById("titleSelect");
 
   const colorSelector = document.querySelector(".color-selector");
@@ -26,79 +26,100 @@ window.addEventListener("DOMContentLoaded", () => {
   let batchMode = false;
   let selectedLabels = [];
 
+  // -------------------------------
+  // ⭐ NEW: highlight-next functionality
+  // -------------------------------
+  function highlightNextLabel() {
+    document.querySelectorAll(".batch-focus").forEach(el =>
+      el.classList.remove("batch-focus")
+    );
+
+    if (!batchMode || selectedLabels.length === 0) return;
+
+    const next = selectedLabels[0];
+    if (next) next.classList.add("batch-focus");
+  }
+
   let calibrationX = 0;
   let calibrationY = 0;
 
   function createLabelGrid(rows = 15, cols = 4) {
-  labelContainer.innerHTML = "";
-  const total = rows * cols;
+    labelContainer.innerHTML = "";
+    const total = rows * cols;
 
-  for (let i = 0; i < total; i++) {
-    const label = document.createElement("div");
-    label.classList.add("label");
-    label.dataset.index = i;
-    label.dataset.color = "default";
+    for (let i = 0; i < total; i++) {
+      const label = document.createElement("div");
+      label.classList.add("label");
+      label.dataset.index = i;
+      label.dataset.color = "default";
 
-    // ✅ UI index (not printed)
-    const indexTag = document.createElement("div");
-    indexTag.classList.add("label-index");
-    indexTag.textContent = i + 1;
-    label.appendChild(indexTag);
+      const inner = document.createElement("div");
+      inner.classList.add("label-inner");
 
-    const titleDiv = document.createElement("div");
-    titleDiv.classList.add("label-title");
-    label.appendChild(titleDiv);
+      const indexTag = document.createElement("div");
+      indexTag.classList.add("label-index");
+      indexTag.textContent = i + 1;
 
-    const barcodeDiv = document.createElement("div");
-    barcodeDiv.classList.add("label-barcode");
-    label.appendChild(barcodeDiv);
+      const titleDiv = document.createElement("div");
+      titleDiv.classList.add("label-title");
 
-    const subtitleDiv = document.createElement("div");
-    subtitleDiv.classList.add("label-subtitle");
-    label.appendChild(subtitleDiv);
+      const barcodeDiv = document.createElement("div");
+      barcodeDiv.classList.add("label-barcode");
 
-    label.addEventListener("click", () => {
-      if (!selectedLabels.includes(label)) {
-        selectedLabels.push(label);
-        label.classList.add("selected");
-      } else {
-        selectedLabels = selectedLabels.filter((l) => l !== label);
-        label.classList.remove("selected");
-      }
-    });
+      const subtitleDiv = document.createElement("div");
+      subtitleDiv.classList.add("label-subtitle");
 
-    labelContainer.appendChild(label);
+      inner.appendChild(indexTag);
+      inner.appendChild(titleDiv);
+      inner.appendChild(barcodeDiv);
+      inner.appendChild(subtitleDiv);
+      label.appendChild(inner);
+
+      // UPDATED: now supports highlightNextLabel()
+      label.addEventListener("click", () => {
+        if (!selectedLabels.includes(label)) {
+          selectedLabels.push(label);
+          label.classList.add("selected");
+        } else {
+          selectedLabels = selectedLabels.filter(l => l !== label);
+          label.classList.remove("selected");
+        }
+
+        if (batchMode) highlightNextLabel();
+      });
+
+      labelContainer.appendChild(label);
+    }
   }
-}
 
   createLabelGrid();
-let zoom = 1;
-const zoomStep = 0.1;
-const maxZoom = 2.0;
-const minZoom = 0.5;
 
-const zoomInBtn = document.getElementById("zoomIn");
-const zoomOutBtn = document.getElementById("zoomOut");
-const zoomLevelText = document.getElementById("zoomLevel");
+  let zoom = 1;
+  const zoomStep = 0.1;
+  const maxZoom = 2.0;
+  const minZoom = 0.5;
 
-function updateZoom() {
-  labelContainer.style.transformOrigin = "top center";
-  labelContainer.style.transform = `scale(${zoom})`;
-  zoomLevelText.textContent = `${Math.round(zoom * 100)}%`;
-}
+  const zoomInBtn = document.getElementById("zoomIn");
+  const zoomOutBtn = document.getElementById("zoomOut");
+  const zoomLevelText = document.getElementById("zoomLevel");
 
-zoomInBtn.addEventListener("click", () => {
-  if (zoom < maxZoom) zoom += zoomStep;
-  updateZoom();
-});
+  function updateZoom() {
+    labelContainer.style.transformOrigin = "top center";
+    labelContainer.style.transform = `scale(${zoom})`;
+    zoomLevelText.textContent = `${Math.round(zoom * 100)}%`;
+  }
 
-zoomOutBtn.addEventListener("click", () => {
-  if (zoom > minZoom) zoom -= zoomStep;
-  updateZoom();
-});
+  zoomInBtn.addEventListener("click", () => {
+    if (zoom < maxZoom) zoom += zoomStep;
+    updateZoom();
+  });
 
+  zoomOutBtn.addEventListener("click", () => {
+    if (zoom > minZoom) zoom -= zoomStep;
+    updateZoom();
+  });
 
-  // ✅ NEW — Show/hide custom title box
+  // Show/hide custom title input
   titleSelect.addEventListener("change", () => {
     if (titleSelect.value === "custom") {
       titleInput.style.display = "inline-block";
@@ -127,17 +148,37 @@ zoomOutBtn.addEventListener("click", () => {
     if (el) el.addEventListener(event, handler);
   }
 
+  // -------------------------------
+  // Batch mode toggle (updated)
+  // -------------------------------
   safeAddListener(batchToggleBtn, "click", () => {
-    batchMode = !batchMode;
-    batchToggleBtn.style.backgroundColor = batchMode ? "#39ff14" : "#005a9e";
-    batchToggleBtn.style.color = batchMode ? "#000" : "#fff";
-    batchToggleBtn.style.boxShadow = batchMode ? "0 0 10px #39ff14, 0 0 20px #39ff14" : "none";
+   batchMode = !batchMode;
+
+if (batchMode) {
+    // ON → neon green
+    batchToggleBtn.style.backgroundColor = "#39ff14";
+    batchToggleBtn.style.color = "#000";
+    batchToggleBtn.style.borderColor = "#39ff14";
+    batchToggleBtn.style.boxShadow = "0 0 10px #39ff14, 0 0 20px #39ff14";
+} else {
+    // OFF → reset to normal header button styling
+    batchToggleBtn.style.backgroundColor = "#f7f9fc";
+    batchToggleBtn.style.color = "#1f2933";
+    batchToggleBtn.style.borderColor = "#d0d7e2";
+    batchToggleBtn.style.boxShadow = "none";
+}
+
+    if (batchMode) highlightNextLabel();
   });
 
   const form = document.getElementById("barcodeForm");
+
   window.addEventListener("scroll", () => {
-    if (window.scrollY > form.offsetTop - 60) form.classList.add("scrolled");
-    else form.classList.remove("scrolled");
+    if (window.scrollY > 80) {
+      form.classList.add("scrolled");
+    } else {
+      form.classList.remove("scrolled");
+    }
   });
 
   function applyColor(label, color) {
@@ -166,7 +207,9 @@ zoomOutBtn.addEventListener("click", () => {
       label.style.background = `linear-gradient(to bottom, #0000FF 0%, #0000FF 25%, ${selectedColorHex} 25%, ${selectedColorHex} 50%, white 50%, white 100%)`;
     }
 
-    titleDiv.style.color = ["red", "green", "orange", "blue", "yellow"].includes(color) ? "white" : "black";
+    titleDiv.style.color = ["red","green","orange","blue","yellow"].includes(color)
+      ? "white"
+      : "black";
   }
 
   colorSelected.addEventListener("click", () => colorSelector.classList.toggle("active"));
@@ -175,56 +218,116 @@ zoomOutBtn.addEventListener("click", () => {
       selectedColor = option.dataset.color;
       colorSelected.textContent = option.textContent;
       colorSelector.classList.remove("active");
-      if (selectedLabels.length > 0) selectedLabels.forEach(label => applyColor(label, selectedColor));
+      if (selectedLabels.length > 0)
+        selectedLabels.forEach(label => applyColor(label, selectedColor));
     });
   });
 
   document.addEventListener("click", (e) => {
-    if (!colorSelector.contains(e.target)) colorSelector.classList.remove("active");
+    if (!colorSelector.contains(e.target)) {
+      colorSelector.classList.remove("active");
+    }
   });
 
-  // ✅ UPDATED — title selection logic added
-  function editLabels() {
-    if (selectedLabels.length === 0) return;
+  // -------------------------------
+  // Edit labels (updated for batch highlight)
+  // -------------------------------
+    function editLabels() {
+        if (selectedLabels.length === 0) return;
 
-    let titleVal = "Fresno Unified School District";
-    if (titleSelect.value === "custom" && titleInput.value.trim() !== "") {
-      titleVal = titleInput.value.trim();
+        // Determine title
+        let titleVal = "Fresno Unified School District";
+        if (titleSelect.value === "custom" && titleInput.value.trim() !== "") {
+            titleVal = titleInput.value.trim();
+        }
+
+        const barcodeVal = barcodeInput.value.trim();
+
+        // -----------------------------
+        // BATCH MODE — edit only FIRST
+        // -----------------------------
+        if (batchMode) {
+            const currentLabel = selectedLabels[0];
+            const currentIndex = parseInt(currentLabel.dataset.index);
+
+            const titleDiv = currentLabel.querySelector(".label-title");
+            const subtitleDiv = currentLabel.querySelector(".label-subtitle");
+
+            titleDiv.textContent = titleVal;
+
+            if (barcodeVal) {
+                let serial = barcodeVal;
+                const match = barcodeVal.match(/(.*?)(\d+)$/);
+
+                if (match) {
+                    const prefix = match[1];
+                    const startNum = parseInt(match[2], 10);
+                    const numLength = match[2].length;
+                    serial = prefix + String(startNum).padStart(numLength, "0");
+
+                    // auto-increment for next scan
+                    barcodeInput.value = prefix + String(startNum + 1).padStart(numLength, "0");
+                }
+
+                updateLabelBarcodeUI(currentLabel, `*${serial}*`);
+                subtitleDiv.textContent = serial;
+            }
+
+            if (selectedColor) applyColor(currentLabel, selectedColor);
+
+            currentLabel.classList.remove("selected");
+            currentLabel.classList.remove("batch-focus");
+
+            // Move to next label
+            const nextIndex = currentIndex + 1;
+            if (nextIndex < labelContainer.children.length) {
+                const nextLabel = labelContainer.children[nextIndex];
+                selectedLabels = [nextLabel];
+                nextLabel.classList.add("selected");
+                nextLabel.classList.add("batch-focus");
+                nextLabel.scrollIntoView({ behavior: "smooth", block: "center" });
+            } else {
+                selectedLabels = [];
+            }
+
+            return;
+        }
+
+        // ----------------------------------------
+        // NON-BATCH MODE — Edit *all* selected
+        // ----------------------------------------
+        selectedLabels.forEach(label => {
+            const titleDiv = label.querySelector(".label-title");
+            const subtitleDiv = label.querySelector(".label-subtitle");
+
+            titleDiv.textContent = titleVal;
+
+            if (barcodeVal) {
+                updateLabelBarcodeUI(label, `*${barcodeVal}*`);
+                subtitleDiv.textContent = barcodeVal;
+            }
+
+            if (selectedColor) applyColor(label, selectedColor);
+
+            label.classList.remove("selected");
+        });
+
+        selectedLabels = [];
+        barcodeInput.value = "";
     }
 
-    const barcodeVal = barcodeInput.value.trim();
 
-    selectedLabels.forEach((label, idx) => {
-      const titleDiv = label.querySelector(".label-title");
-      const subtitleDiv = label.querySelector(".label-subtitle");
 
-      titleDiv.textContent = titleVal;
-
-      if (barcodeVal) {
-        let serial = barcodeVal;
-        const match = barcodeVal.match(/(.*?)(\d+)$/);
-        if (batchMode && match) {
-          const prefix = match[1];
-          const startNum = parseInt(match[2], 10);
-          const numLength = match[2].length;
-          serial = prefix + String(startNum + idx).padStart(numLength, "0");
-        }
-        updateLabelBarcodeUI(label, `*${serial}*`);
-        subtitleDiv.textContent = serial;
-      }
-
-      if (selectedColor) applyColor(label, selectedColor);
-      label.classList.remove("selected");
-    });
-
-    selectedLabels = batchMode ? [labelContainer.children[parseInt(selectedLabels.pop().dataset.index) + 1]] : [];
-    barcodeInput.value = "";
-  }
 
   safeAddListener(editSelectedBtn, "click", editLabels);
-  [titleInput, barcodeInput].forEach(input => input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); editLabels(); }
-  }));
+  [titleInput, barcodeInput].forEach(input =>
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        editLabels();
+      }
+    })
+  );
 
   safeAddListener(clearSelectionBtn, "click", () => {
     selectedLabels.forEach(label => {
@@ -245,6 +348,8 @@ zoomOutBtn.addEventListener("click", () => {
       selectedLabels.push(label);
       label.classList.add("selected");
     });
+
+    if (batchMode) highlightNextLabel();
   });
 
   safeAddListener(clearAllBtn, "click", () => {
@@ -270,6 +375,7 @@ zoomOutBtn.addEventListener("click", () => {
       const serial = label.querySelector(".label-subtitle")?.textContent || "";
       if (title || serial) csvContent += `${title},${serial}\n`;
     });
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -278,6 +384,10 @@ zoomOutBtn.addEventListener("click", () => {
     link.click();
     document.body.removeChild(link);
   });
+
+  // -------------------------------------------------------------------
+  // Calibration modal & Print PDF (unchanged)
+  // -------------------------------------------------------------------
 
   const calibrationModal = document.createElement("div");
   calibrationModal.id = "calibrationModal";
@@ -315,10 +425,10 @@ zoomOutBtn.addEventListener("click", () => {
   });
 
   modalApply.addEventListener("click", () => {
-    calibrationX = parseFloat(modalX.value)/25.4 || 0;
-    calibrationY = parseFloat(modalY.value)/25.4 || 0;
+    calibrationX = parseFloat(modalX.value) / 25.4 || 0;
+    calibrationY = parseFloat(modalY.value) / 25.4 || 0;
     calibrationModal.style.display = "none";
-    printPDFWithCalibration(); // ✅ still here, print works
+    printPDFWithCalibration();
   });
 
   modalReset.addEventListener("click", () => {
@@ -387,12 +497,25 @@ zoomOutBtn.addEventListener("click", () => {
     window.open("https://forms.office.com/r/XyFMpjNwma", "_blank");
   });
 
-  feedbackBtn.addEventListener("click", () => feedbackModalElem.style.display = "flex");
-  feedbackClose.addEventListener("click", () => feedbackModalElem.style.display = "none");
-  window.addEventListener("click", (e) => { if (e.target === feedbackModalElem) feedbackModalElem.style.display = "none"; });
+  feedbackBtn.addEventListener("click", () => {
+    feedbackModalElem.style.display = "flex";
+  });
 
+  feedbackClose.addEventListener("click", () => {
+    feedbackModalElem.style.display = "none";
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === feedbackModalElem) {
+      feedbackModalElem.style.display = "none";
+    }
+  });
+
+  // ---------------------------
+  // Print logic (unchanged)
+  // ---------------------------
   function printPDFWithCalibration() {
-    const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60); 
+    const allLabels = Array.from(labelContainer.querySelectorAll(".label")).slice(0, 60);
     const printWindow = window.open("", "_blank");
 
     const cols = 4;
@@ -405,8 +528,8 @@ zoomOutBtn.addEventListener("click", () => {
     const pageWidth = 8.5;
     const pageHeight = 11;
 
-    const baselineXOffset = .50 / 25.4;
-    const baselineYOffset = .28 / 25.4;
+    const baselineXOffset = 0.50 / 25.4;
+    const baselineYOffset = 0.28 / 25.4;
 
     const gridWidth = cols * labelWidthIn + (cols - 1) * horizontalGap;
     const gridHeight = rows * labelHeightIn + (rows - 1) * verticalGap;
@@ -415,12 +538,11 @@ zoomOutBtn.addEventListener("click", () => {
     const offsetY = (pageHeight - gridHeight) / 2 + baselineYOffset + calibrationY;
 
     const style = document.createElement("style");
-    style.textContent = ` 
+    style.textContent = `
       @font-face {
-      font-family: 'CCod39';
-      src: url('CCode39.ttf') format('truetype');
+        font-family: 'CCod39';
+        src: url('CCode39.ttf') format('truetype');
       }
-    
       @page { size: letter; margin: 0; }
       body {
         font-family: Arial, sans-serif;
@@ -436,7 +558,7 @@ zoomOutBtn.addEventListener("click", () => {
         print-color-adjust: exact;
       }
       .label {
-        border-radius: 11px; 
+        border-radius: 11px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -444,9 +566,18 @@ zoomOutBtn.addEventListener("click", () => {
         align-items: center;
         padding: 2px;
       }
+      .label-inner {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
       .label-title {
         font-weight: bold;
-        font-size: 8px;
+        font-size: 10px;
         margin-bottom: 0px;
         margin-top: 2px;
       }
@@ -470,11 +601,11 @@ zoomOutBtn.addEventListener("click", () => {
 
     allLabels.forEach(label => {
       const clone = label.cloneNode(true);
-      
+
       const labelStyle = window.getComputedStyle(label);
       clone.style.background = labelStyle.background;
       clone.style.borderRadius = labelStyle.borderRadius;
-      // ✅ Remove index number so it never prints
+
       const idxEl = clone.querySelector(".label-index");
       if (idxEl) idxEl.remove();
 
