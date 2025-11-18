@@ -289,8 +289,15 @@ if (batchMode) {
             } else {
                 selectedLabels = [];
             }
+// --- Always prepare barcode box for next scan ---
+barcodeInput.value = "";
+setTimeout(() => barcodeInput.focus(), 30);
 
+// Re-highlight next label (scanner flow)
+if (batchMode) highlightNextLabel();
             return;
+          
+
         }
 
         // ----------------------------------------
@@ -365,7 +372,13 @@ if (batchMode) {
     selectedLabels = [];
   });
 
-  safeAddListener(barcodeInput, "change", editLabels);
+// Scanner automatically triggers "change" (not Enter)
+// This ensures: update → clear field → refocus → next label ready
+barcodeInput.addEventListener("change", () => {
+  editLabels();              // update the label(s)
+  barcodeInput.value = "";   // clear for next scan
+  setTimeout(() => barcodeInput.focus(), 20); // keep cursor ready
+});
 
   const exportBtn = document.getElementById("exportExcel");
   safeAddListener(exportBtn, "click", () => {
