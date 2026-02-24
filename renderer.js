@@ -241,7 +241,7 @@ if (batchMode) {
 
     switch (titleSelect.value) {
     case "default":
-        titleVal = "Fresno Unified School District: Serial#";
+        titleVal = "Fresno Unified School District - SERIAL";
         break;
 
     case "fusd":
@@ -658,4 +658,5 @@ barcodeInput.addEventListener("change", () => {
     printWindow.print();
   }
 });
+
 
