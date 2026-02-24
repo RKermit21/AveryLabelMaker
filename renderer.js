@@ -660,3 +660,4 @@ barcodeInput.addEventListener("change", () => {
 });
 
 
+
