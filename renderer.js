@@ -236,7 +236,7 @@ if (batchMode) {
         if (selectedLabels.length === 0) return;
 
         // Determine title
-        let titleVal = "Fresno Unified School District";
+        let titleVal = "Fresno Unified School District: Serial#";
         if (titleSelect.value === "custom" && titleInput.value.trim() !== "") {
             titleVal = titleInput.value.trim();
         }
@@ -646,3 +646,4 @@ barcodeInput.addEventListener("change", () => {
     printWindow.print();
   }
 });
+
