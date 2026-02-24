@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,14 +51,25 @@
         </div>
 
         <!-- ✅ NEW Title Dropdown + Custom input -->
-        <select id="titleSelect" style="margin-left:6px;">
-          <option value="default" selected>Fresno Unified School District: Serial#</option>
-          <option value="custom">Custom Title</option>
-        </select>
+        <!-- Title Dropdown + Custom input -->
+          <select id="titleSelect" style="margin-left:6px;">
+         <option value="default" selected>
+         Fresno Unified School District: Serial#
+         </option>
 
-        <input type="text" id="titleInput" placeholder="Enter Custom Title"
-               style="display:none; margin-left:6px;">
+  <!-- ✅ NEW OPTION -->
+  <option value="fusd">
+    Fresno Unified School District
+  </option>
 
+  <option value="custom">
+    Custom Title
+  </option>
+</select>
+
+<input type="text" id="titleInput"
+       placeholder="Enter Custom Title"
+       style="display:none; margin-left:6px;">
         <!-- Barcode Input -->
         <input type="text" id="barcodeInput" placeholder="Enter Barcode (Scan or Manual)">
       </div>

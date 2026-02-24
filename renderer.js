@@ -1,3 +1,4 @@
+
 window.addEventListener("DOMContentLoaded", () => {
   const labelContainer = document.getElementById("labelContainer");
   const titleInput = document.getElementById("titleInput");
@@ -236,10 +237,21 @@ if (batchMode) {
         if (selectedLabels.length === 0) return;
 
         // Determine title
-        let titleVal = "Fresno Unified School District: Serial#";
-        if (titleSelect.value === "custom" && titleInput.value.trim() !== "") {
-            titleVal = titleInput.value.trim();
-        }
+        let titleVal = "";
+
+    switch (titleSelect.value) {
+    case "default":
+        titleVal = "Fresno Unified School District: Serial#";
+        break;
+
+    case "fusd":
+        titleVal = "Fresno Unified School District";
+        break;
+
+    case "custom":
+        titleVal = titleInput.value.trim() || "";
+        break;
+}
 
         const barcodeVal = barcodeInput.value.trim();
 
