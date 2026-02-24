@@ -266,7 +266,7 @@ header h1 {
   border: 1px solid #d1d5db;
   padding: 6px 10px;
   font-size: 13px;
-  min-width: 190px;
+  min-width: 210px;
   background: #f9fafb;
 }
 
@@ -665,4 +665,5 @@ header h1 {
     font-size: 12px;
   }
 }
+
 
