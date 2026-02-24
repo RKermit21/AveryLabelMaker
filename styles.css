@@ -247,7 +247,7 @@ header h1 {
 ================================== */
 
 .input-forms {
-  flex: 2 1 320px;
+  flex: 2 1 350px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -665,3 +665,4 @@ header h1 {
     font-size: 12px;
   }
 }
+
